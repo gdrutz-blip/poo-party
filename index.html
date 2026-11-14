@@ -170,7 +170,7 @@ function accOf(q){return q.id==="fancy"?outfitAcc(prof().outfit):q.acc}
 function colOf(q){return q.id==="fancy"?COLORS[prof().outfit.color]:q.color}
 function noop(){}
 /* score needed in each game for each title */
-var TITLES={"catch":[15,40,100],flap:[3,8,20],whack:[8,15,25],run:[8,20,40]};
+var TITLES={"catch":[30,80,200],flap:[5,15,25],whack:[8,15,25],run:[10,30,50]};
 var RANKS=["","Little Stinker","Super Pooper","Poo Master"];
 function rankOf(g,best){var a=TITLES[g];if(!a)return 0;return a.filter(function(v){return (best||0)>=v}).length}
 var me=null, sel=POOS[0];

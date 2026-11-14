@@ -7,11 +7,14 @@ A silly collect-the-poos game for Farah, Mia and Gemma. Each poo has its own min
 
 ## Poos so far
 
-| Poo | Game | Hatches at |
+| Poo | Game | Party points to hatch |
 | --- | --- | --- |
 | Sir Plops-a-Lot | Poo Catcher | start |
-| Flappy McPlop | Flappy Poo | 25 party points |
-| Peeky Poo | Whack-a-Poo | 60 party points |
-| Skater Poo | Poo Runner | 110 party points |
+| Flappy McPlop | Flappy Poo | 30 |
+| Peeky Poo | Whack-a-Poo | 50 |
+| Skater Poo | Poo Runner | 70 |
+| Fancy Poo | Dress-Up | 90 |
+
+Poos hatch in order, and one game can hatch at most one poo (the hatch meter resets each time). Once all five are hatched, the Poo Disco opens.
 
 To add a poo: add an entry to `POOS`, write a game object with `tap`, `pointer`, `update(dt)` and `draw(ctx)`, and add it to `GAMES`.

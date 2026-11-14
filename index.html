@@ -63,7 +63,8 @@
   @keyframes wig{0%,100%{transform:rotate(0)}25%{transform:rotate(-14deg) scale(1.15)}75%{transform:rotate(14deg) scale(1.15)}}
   .card{width:100%;max-width:520px;margin-top:14px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px}
   .card h2{margin:0}
-  .foot{margin-top:auto;padding-top:14px;display:flex;gap:10px}
+  .foot{margin-top:auto;padding-top:14px;display:flex;flex-wrap:wrap;justify-content:center;gap:10px}
+  #reset{touch-action:none}
 
   /* game */
   #game{padding:0;background:#222;justify-content:center;overflow:hidden}
@@ -102,6 +103,7 @@
   <div class="foot">
     <button class="btn alt small" id="switch">Switch player</button>
     <button class="btn alt small" id="mute">Sound: on</button>
+    <button class="btn alt small" id="reset">Start over</button>
   </div>
 </section>
 
@@ -359,9 +361,11 @@ function CatchGame(){
 /* ---------- game 2: Flappy Poo ---------- */
 function FlapGame(){
   var y=H/2,vy=0,started=false,pipes=[],score=0,t=0,dist=0;
-  var BX=90,GAP=215,PW=60,SPEED=95,GROUND=H-34;
-  function addPipe(x){pipes.push({x:x,gy:120+Math.random()*(GROUND-GAP-200),done:false})}
-  addPipe(W+60);addPipe(W+60+215);
+  var BX=90,PW=60,GROUND=H-34,made=0;
+  function speed(){return 78+Math.min(17,score*1.5)}
+  function addPipe(x){var gap=Math.max(215,265-made*6);made+=1;
+    pipes.push({x:x,gap:gap,gy:110+Math.random()*(GROUND-gap-190),done:false})}
+  addPipe(W+110);addPipe(W+110+225);
   function tower(c,x,top,bottom){
     c.fillStyle="#fff";c.fillRect(x,top,PW,bottom-top);
     c.strokeStyle="#d5dbe6";c.lineWidth=2;
@@ -375,16 +379,16 @@ function FlapGame(){
     update:function(dt){
       t+=dt;
       if(!started){y=H/2+Math.sin(t*3)*10;return null}
-      vy+=640*dt;y+=vy*dt;if(y<24){y=24;vy=0}
-      dist+=SPEED*dt;
+      vy+=600*dt;y+=vy*dt;if(y<24){y=24;vy=0}
+      dist+=speed()*dt;
       for(var i=pipes.length-1;i>=0;i--){
-        var p=pipes[i];p.x-=SPEED*dt;
+        var p=pipes[i];p.x-=speed()*dt;
         if(!p.done&&p.x+PW<BX-16){p.done=true;score+=1;ding()}
-        if(p.x<-PW-10){pipes.splice(i,1);addPipe(pipes[pipes.length-1].x+215)}
+        if(p.x<-PW-10){pipes.splice(i,1);addPipe(pipes[pipes.length-1].x+225)}
       }
       var hit=y+16>GROUND;
       pipes.forEach(function(p){
-        if(BX+15>p.x&&BX-15<p.x+PW&&(y-16<p.gy||y+16>p.gy+GAP))hit=true;
+        if(BX+15>p.x&&BX-15<p.x+PW&&(y-16<p.gy||y+16>p.gy+p.gap))hit=true;
       });
       if(hit){bleh();return {score:score,pts:score*2}}
       return null;
@@ -396,7 +400,7 @@ function FlapGame(){
         var cx=((cl[0]-dist*0.25)%(W+120)+W+120)%(W+120)-60;
         ell(c,cx,cl[1],34,16);ell(c,cx+24,cl[1]-10,24,16);ell(c,cx-22,cl[1]-6,20,13);
       });
-      pipes.forEach(function(p){tower(c,p.x,-4,p.gy);tower(c,p.x,p.gy+GAP,GROUND)});
+      pipes.forEach(function(p){tower(c,p.x,-4,p.gy);tower(c,p.x,p.gy+p.gap,GROUND)});
       c.fillStyle="#9bd36b";c.fillRect(0,GROUND,W,H-GROUND);
       c.fillStyle="#7dbb4e";c.fillRect(0,GROUND,W,6);
       c.save();c.translate(BX,y+18);c.rotate(Math.max(-0.4,Math.min(0.6,vy/500)));
@@ -731,6 +735,25 @@ $("back").addEventListener("click",function(){buildHome();show("home")});
 $("quit").addEventListener("click",function(){stop();buildHome();show("home")});
 $("switch").addEventListener("click",function(){buildWho();show("who")});
 $("mute").addEventListener("click",function(){muted=!muted;this.textContent="Sound: "+(muted?"off":"on");if(!muted)fart()});
+
+/* grown-up reset: hold the button for 3 seconds to wipe the current player's progress */
+var resetBtn=$("reset"),holdT=0,labelT=0;
+function resetLabel(txt){clearTimeout(labelT);resetBtn.textContent=txt;
+  if(txt!=="Start over"&&txt!=="Keep holding...")labelT=setTimeout(function(){resetBtn.textContent="Start over"},1600)}
+resetBtn.addEventListener("pointerdown",function(e){
+  if(e&&e.preventDefault)e.preventDefault();
+  resetLabel("Keep holding...");
+  clearTimeout(holdT);
+  holdT=setTimeout(function(){
+    holdT=0;var p=prof();
+    p.pts=0;p.best={};p.hatched=1;p.meter=0;p.outfit={hat:0,eyes:0,extra:0,color:0};
+    save();sel=POOS[0];buildHome();bleh();resetLabel(me+" starts fresh!");
+  },3000);
+});
+["pointerup","pointerleave","pointercancel"].forEach(function(ev){
+  resetBtn.addEventListener(ev,function(){if(holdT){clearTimeout(holdT);holdT=0;resetLabel("Hold for 3 seconds")}});
+});
+resetBtn.addEventListener("contextmenu",function(e){e.preventDefault()});
 
 buildWho();
 })();

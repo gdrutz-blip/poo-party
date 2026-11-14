@@ -13,7 +13,7 @@ A silly collect-the-poos game for Farah, Mia and Gemma. Each poo has its own min
 | Flappy McPlop | Flappy Poo | 30 |
 | Peeky Poo | Whack-a-Poo | 50 |
 | Skater Poo | Poo Runner | 70 |
-| Fancy Poo | Dress-Up | 90 |
+| Fancy Poo | Match the Poo (plus Free Dress-Up) | 90 |
 | Sporty Poo | Poo Hop | 110 |
 
 Poos hatch in order, and one game can hatch at most one poo (the hatch meter resets each time). Once all six are hatched, the Poo Disco opens.

@@ -100,6 +100,7 @@
     <p id="cbest"></p>
     <p id="ctitle"></p>
     <button class="btn" id="play"></button>
+    <button class="btn alt" id="play2" style="display:none"></button>
     <button class="btn alt" id="disco" style="display:none">🪩 Poo Disco!</button>
   </div>
   <div class="foot">
@@ -157,8 +158,9 @@ var POOS=[
    blurb:"Bop the poos when they peek out. Don't bop the duck!"},
   {id:"skater",name:"Skater Poo",color:"#7a4a22",acc:"shades",cost:70,game:"run",gname:"Poo Runner",
    blurb:"Tap to jump the plungers and grab the toilet paper!"},
-  {id:"fancy",name:"Fancy Poo",color:"#8a5a2b",acc:"crown",cost:90,game:"dress",gname:"Dress-Up",
-   blurb:"Dress up your poo, then throw it a party!"},
+  {id:"fancy",name:"Fancy Poo",color:"#8a5a2b",acc:"crown",cost:90,game:"match",gname:"Match the Poo",
+   blurb:"Change the hat, glasses, extra and colour to match the picture. Beat the clock!",
+   game2:"dress",g2name:"Free Dress-Up"},
   {id:"sporty",name:"Sporty Poo",color:"#9a6233",acc:"band shoes",cost:110,game:"hop",gname:"Poo Hop",
    blurb:"Tap to hop forward, swipe to go sideways. Dodge everything and don't get flushed!"}
 ];
@@ -172,7 +174,7 @@ function accOf(q){return q.id==="fancy"?outfitAcc(prof().outfit):q.acc}
 function colOf(q){return q.id==="fancy"?COLORS[prof().outfit.color]:q.color}
 function noop(){}
 /* score needed in each game for each title */
-var TITLES={"catch":[30,70,130],flap:[5,15,40],whack:[8,15,25],run:[10,30,50],hop:[15,40,80]};
+var TITLES={"catch":[30,70,130],flap:[5,15,40],whack:[8,15,25],run:[10,30,50],hop:[15,40,80],match:[5,10,20]};
 var RANKS=["","Little Stinker","Super Pooper","Poo Master"];
 function rankOf(g,best){var a=TITLES[g];if(!a)return 0;return a.filter(function(v){return (best||0)>=v}).length}
 var me=null, sel=POOS[0];
@@ -198,7 +200,30 @@ function tone(type,f1,f2,dur,vol,wobble){
     o.start(n);o.stop(n+dur+0.02);
   }catch(e){}
 }
-function fart(){var f=65+Math.random()*60;tone("sawtooth",f,f*0.5,0.22+Math.random()*0.2,0.22,24+Math.random()*14)}
+function noiseFart(dur,freq,rate){
+  var a=audio();if(!a)return;
+  try{
+    var n=a.currentTime,len=Math.floor(a.sampleRate*dur),buf=a.createBuffer(1,len,a.sampleRate),d=buf.getChannelData(0);
+    for(var i=0;i<len;i++){var ph=(i/a.sampleRate*rate)%1;d[i]=(Math.random()*2-1)*(ph<0.5?1:0.15)*(1-i/len)}
+    var src=a.createBufferSource(),f=a.createBiquadFilter(),g=a.createGain();
+    src.buffer=buf;f.type="lowpass";f.frequency.value=freq;g.gain.value=0.6;
+    src.connect(f);f.connect(g);g.connect(a.destination);src.start(n);
+  }catch(e){}
+}
+/* eight kinds of fart, picked at random */
+function fart(){
+  var k=Math.floor(Math.random()*8),f=65+Math.random()*60;
+  if(k===0)tone("sawtooth",f,f*0.5,0.22+Math.random()*0.2,0.22,24+Math.random()*14);      /* classic */
+  else if(k===1)tone("triangle",380+Math.random()*120,240,0.14,0.2,55);                    /* squeaker */
+  else if(k===2)tone("sawtooth",52,34,0.75,0.24,13);                                       /* long rumbler */
+  else if(k===3){tone("sawtooth",f,f*0.8,0.1,0.22,30);                                     /* double toot */
+    setTimeout(function(){tone("sawtooth",f*1.2,f*0.6,0.18,0.22,30)},150)}
+  else if(k===4)tone("sawtooth",60,150,0.3,0.2,26);                                        /* the question */
+  else if(k===5){[0,1,2,3,4].forEach(function(i){                                          /* sputter */
+    setTimeout(function(){tone("sawtooth",70+Math.random()*50,50,0.05,0.22,45)},i*65)})}
+  else if(k===6)noiseFart(0.35+Math.random()*0.3,260,22+Math.random()*16);                 /* airy one */
+  else{tone("sawtooth",90,45,0.5,0.2,18);noiseFart(0.5,200,18)}                            /* the big one */
+}
 function ding(){tone("sine",880,1500,0.25,0.2)}
 function bleh(){tone("square",220,80,0.35,0.12)}
 function flapSnd(){tone("sawtooth",150,90,0.09,0.12,40)}
@@ -723,6 +748,69 @@ function DressGame(){
   };
 }
 
+/* ---------- game 5: Match the Poo ---------- */
+function MatchGame(){
+  var KEYS=["hat","eyes","extra","color"],LENS=[HATS.length,EYES.length,EXTRAS.length,COLORS.length],LAB=[HATN,EYEN,EXN,COLN];
+  var o={hat:0,eyes:0,extra:0,color:0},tg=null,score=0,left=30,t=0,wait=0,wig=0,conf=[],started=false;
+  function same(){return KEYS.every(function(k){return o[k]===tg[k]})}
+  /* early pictures differ in one thing, later ones in all four */
+  function next(){
+    tg={hat:o.hat,eyes:o.eyes,extra:o.extra,color:o.color};
+    var n=Math.min(4,1+Math.floor(score/2)),ks=KEYS.slice().sort(function(){return Math.random()-0.5}).slice(0,n);
+    ks.forEach(function(k){var L=LENS[KEYS.indexOf(k)];tg[k]=(o[k]+1+Math.floor(Math.random()*(L-1)))%L});
+  }
+  next();
+  return {
+    name:"match",
+    pointer:noop,
+    tap:function(x,y){
+      if(wait>0)return;
+      for(var i=0;i<4;i++){
+        var ry=306+i*56;
+        if(y>ry-27&&y<ry+27){
+          var k=KEYS[i];o[k]=(o[k]+(x<W/2?-1:1)+LENS[i])%LENS[i];started=true;wig=0.25;
+          if(same()){score+=1;left=Math.min(40,left+Math.max(1.5,6-score*0.4));wait=0.8;tada();confAdd(conf,240,150,26,true)}
+          else fart();
+          return;
+        }
+      }
+    },
+    update:function(dt){
+      t+=dt;wig-=dt;confStep(conf,dt);
+      if(wait>0){wait-=dt;if(wait<=0)next();return null}
+      if(started)left-=dt;
+      if(left<=0){bleh();return {score:score,pts:score*3}}
+      return null;
+    },
+    draw:function(c){
+      c.fillStyle=wait>0?"#e6fcf5":"#fff0c9";c.fillRect(0,0,W,H);
+      c.fillStyle="#fff";c.fillRect(16,62,128,148);c.strokeStyle="#8b5cf6";c.lineWidth=4;c.strokeRect(16,62,128,148);
+      c.fillStyle="#8b5cf6";c.font="800 18px 'Baloo 2',sans-serif";c.textAlign="center";c.fillText(wait>0?"Matched!":"Match me!",80,84);
+      drawPoo(c,80,202,84,COLORS[tg.color],outfitAcc(tg),t);
+      c.save();
+      if(wait>0){c.translate(245,232-Math.abs(Math.sin(wait*12))*26);c.rotate(Math.sin(wait*12)*0.25)}
+      else{c.translate(245,232);if(wig>0)c.rotate(Math.sin(wig*40)*0.12)}
+      drawPoo(c,0,0,128,COLORS[o.color],outfitAcc(o),t);
+      c.restore();
+      c.fillStyle="#fff";c.fillRect(20,250,320,16);
+      c.fillStyle=left<8?"#e03131":"#19b5a5";c.fillRect(20,250,320*Math.max(0,Math.min(1,left/40)),16);
+      c.strokeStyle="#3b2412";c.lineWidth=2;c.strokeRect(20,250,320,16);
+      KEYS.forEach(function(k,i){
+        var ry=306+i*56,ok=o[k]===tg[k];
+        c.fillStyle=ok?"#d3f9d8":"#fff";c.fillRect(20,ry-23,320,46);c.strokeStyle=ok?"#2f9e44":"#e3d3ad";c.lineWidth=3;c.strokeRect(20,ry-23,320,46);
+        c.fillStyle="#ff5fa2";
+        c.beginPath();c.moveTo(32,ry);c.lineTo(54,ry-14);c.lineTo(54,ry+14);c.closePath();c.fill();
+        c.beginPath();c.moveTo(328,ry);c.lineTo(306,ry-14);c.lineTo(306,ry+14);c.closePath();c.fill();
+        c.fillStyle="#3b2412";c.font="700 20px 'Baloo 2',sans-serif";c.textAlign="center";c.fillText(LAB[i][o[k]],W/2,ry+7);
+        if(ok){c.strokeStyle="#2f9e44";c.lineWidth=4;c.lineCap="round";c.beginPath();c.moveTo(268,ry);c.lineTo(276,ry+8);c.lineTo(290,ry-8);c.stroke()}
+      });
+      confDraw(c,conf);
+      hud(c,"Matches: "+score,null);
+      if(!started){c.font="700 18px 'Baloo 2',sans-serif";c.textAlign="center";c.fillStyle="#3b2412";c.fillText("Tap the arrows to match the picture!",W/2,H-52)}
+    }
+  };
+}
+
 /* ---------- finale: Poo Disco ---------- */
 function DiscoGame(){
   var t=0,beat=-1,conf=[],NOTES=[262,330,392,330,294,349,440,349];
@@ -817,6 +905,8 @@ function buildHome(){
   $("cbest").textContent=best?("Best score: "+best+(rank?" · "+RANKS[rank]:"")):"";
   $("ctitle").textContent=!lv?"":rank<3?("Score "+lv[rank]+" to become a "+RANKS[rank+1]+"!"):"Top title earned!";
   $("play").textContent="Play "+sel.gname;
+  $("play2").style.display=sel.game2?"":"none";
+  $("play2").textContent=sel.g2name||"";
 }
 
 /* ---------- game runner ---------- */
@@ -831,7 +921,7 @@ function fit(){
 window.addEventListener("resize",fit);
 function px(e){var r=cv.getBoundingClientRect();return (e.clientX-r.left)*W/r.width}
 function py(e){var r=cv.getBoundingClientRect();return (e.clientY-r.top)*H/r.height}
-var GAMES={catch:CatchGame,flap:FlapGame,whack:WhackGame,run:RunGame,dress:DressGame,disco:DiscoGame,hop:HopGame};
+var GAMES={catch:CatchGame,flap:FlapGame,whack:WhackGame,run:RunGame,dress:DressGame,disco:DiscoGame,hop:HopGame,match:MatchGame};
 cv.addEventListener("pointerdown",function(e){e.preventDefault();audio();if(game&&running)game.tap(px(e),py(e))});
 cv.addEventListener("pointerup",function(e){if(game&&running&&game.up)game.up(px(e),py(e))});
 cv.addEventListener("pointermove",function(e){if(game&&running)game.pointer(px(e))});
@@ -875,6 +965,7 @@ function finish(res){
 }
 
 $("play").addEventListener("click",function(){audio();start(sel.game)});
+$("play2").addEventListener("click",function(){audio();if(sel.game2)start(sel.game2)});
 $("disco").addEventListener("click",function(){audio();start("disco")});
 $("again").addEventListener("click",function(){start(game.name)});
 $("back").addEventListener("click",function(){buildHome();show("home")});

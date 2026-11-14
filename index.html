@@ -58,7 +58,8 @@
   .poo:nth-child(2) canvas{animation-delay:-.5s} .poo:nth-child(3) canvas{animation-delay:-1s}
   .poo.sel canvas{filter:drop-shadow(0 0 10px var(--yellow))}
   .poo.wig canvas{animation:wig .45s}
-  .poo small{font-size:15px;font-weight:700;line-height:1.1;text-align:center;min-height:34px}
+  .poo small{font-size:15px;font-weight:700;line-height:1.15;text-align:center;min-height:36px;white-space:pre-line}
+  #ctitle{font-size:16px;color:var(--purple);font-weight:700}
   @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px) scale(1.03,.97)}}
   @keyframes wig{0%,100%{transform:rotate(0)}25%{transform:rotate(-14deg) scale(1.15)}75%{transform:rotate(14deg) scale(1.15)}}
   .card{width:100%;max-width:520px;margin-top:14px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:8px}
@@ -97,6 +98,7 @@
     <h2 id="cname"></h2>
     <p id="cblurb"></p>
     <p id="cbest"></p>
+    <p id="ctitle"></p>
     <button class="btn" id="play"></button>
     <button class="btn alt" id="disco" style="display:none">🪩 Poo Disco!</button>
   </div>
@@ -167,6 +169,10 @@ function outfitAcc(o){return HATS[o.hat]+" "+EYES[o.eyes]+" "+EXTRAS[o.extra]}
 function accOf(q){return q.id==="fancy"?outfitAcc(prof().outfit):q.acc}
 function colOf(q){return q.id==="fancy"?COLORS[prof().outfit.color]:q.color}
 function noop(){}
+/* score needed in each game for each title */
+var TITLES={"catch":[15,40,100],flap:[3,8,20],whack:[8,15,25],run:[8,20,40]};
+var RANKS=["","Little Stinker","Super Pooper","Poo Master"];
+function rankOf(g,best){var a=TITLES[g];if(!a)return 0;return a.filter(function(v){return (best||0)>=v}).length}
 var me=null, sel=POOS[0];
 function prof(){return store.profiles[me]}
 function unlocked(q){return POOS.indexOf(q)<prof().hatched}
@@ -535,22 +541,47 @@ function confAdd(a,x,y,n,up){for(var i=0;i<n;i++)a.push({x:x,y:y,vx:(Math.random
 
 /* ---------- game 5: Dress-Up ---------- */
 function DressGame(){
-  var o=prof().outfit,t=0,party=-1,wig=0,conf=[];
+  var o=prof().outfit,t=0,party=-1,wig=0,conf=[],dance=-1,danceT=0,lastBeat=-1;
   var rows=[["hat",HATN],["eyes",EYEN],["extra",EXN],["color",COLN]];
+  var DANCES=["Shuffle","Wiggle","Spin"],SOUNDS=["Toot","Drum","Honk","Squeak"];
+  var TUNES=[[262,0,330,262,0,392,330,0],[523,587,523,587,659,587,523,494],[262,330,392,523,392,330,262,196]];
+  var TEMPO=[0.2,0.15,0.18];
+  function sound(i){
+    if(i===0)fart();
+    else if(i===1){tone("sine",150,45,0.2,0.4)}
+    else if(i===2){tone("square",233,233,0.28,0.1);tone("square",277,277,0.28,0.1)}
+    else tone("sine",1100,2300,0.13,0.18);
+  }
+  function button(c,x,y,w,h,fill,label){
+    c.fillStyle=fill;c.fillRect(x,y,w,h);
+    c.fillStyle="#fff";c.font="800 18px 'Baloo 2',sans-serif";c.textAlign="center";c.fillText(label,x+w/2,y+h/2+6);
+  }
   return {
     name:"dress",
     pointer:noop,
     tap:function(x,y){
       if(party>=0)return;
       for(var i=0;i<4;i++){
-        var ry=352+i*50;
-        if(y>ry-24&&y<ry+24){var k=rows[i][0],n=rows[i][1].length;o[k]=(o[k]+(x<W/2?-1:1)+n)%n;fart();wig=0.3;save();return}
+        var ry=272+i*40;
+        if(y>ry-19&&y<ry+19){var k=rows[i][0],n=rows[i][1].length;o[k]=(o[k]+(x<W/2?-1:1)+n)%n;fart();wig=0.3;save();return}
       }
-      if(y>536){party=0;tada();return}
-      if(y<326){fart();wig=0.3}
+      if(y>=420&&y<464){dance=Math.max(0,Math.min(2,Math.floor((x-20)/107)));danceT=0;lastBeat=-1;return}
+      if(y>=466&&y<512){sound(Math.max(0,Math.min(3,Math.floor((x-20)/80))));wig=0.3;return}
+      if(y>=516){dance=-1;party=0;tada();return}
+      if(y<250){fart();wig=0.3}
     },
     update:function(dt){
       t+=dt;wig-=dt;
+      if(dance>=0){
+        danceT+=dt;
+        var b=Math.floor(danceT/TEMPO[dance]);
+        if(b!==lastBeat){
+          lastBeat=b;var note=TUNES[dance][b%8];
+          if(note)tone("square",note,note,0.14,0.07);
+          if(b%2===0)tone("sine",110,50,0.1,0.25);
+        }
+        if(danceT>4.8)dance=-1;
+      }
       if(party>=0){
         if(Math.floor(party/0.4)!==Math.floor((party+dt)/0.4))fart();
         party+=dt;confAdd(conf,Math.random()*W,-10,2,false);
@@ -560,24 +591,29 @@ function DressGame(){
       return null;
     },
     draw:function(c){
-      c.fillStyle=party>=0?"hsl("+Math.floor(party*200)%360+",90%,88%)":"#fff0c9";c.fillRect(0,0,W,H);
+      c.fillStyle=party>=0?"hsl("+Math.floor(party*200)%360+",90%,88%)":dance>=0?"hsl("+(40+dance*110)+",90%,90%)":"#fff0c9";
+      c.fillRect(0,0,W,H);
+      var bx=W/2,by=party>=0?330:238,d=danceT;
       c.save();
-      if(party>=0){c.translate(W/2,305-Math.abs(Math.sin(party*8))*34);c.rotate(Math.sin(party*8)*0.25)}
-      else{c.translate(W/2,305);if(wig>0)c.rotate(Math.sin(wig*40)*0.12)}
-      drawPoo(c,0,0,180,COLORS[o.color],outfitAcc(o),t);
+      if(party>=0){c.translate(bx,by-Math.abs(Math.sin(party*8))*34);c.rotate(Math.sin(party*8)*0.25)}
+      else if(dance===0){c.translate(bx+Math.sin(d*5)*80,by);c.rotate(Math.sin(d*10)*0.14)}
+      else if(dance===1){var w=Math.sin(d*16);c.translate(bx,by);c.rotate(w*0.3);c.scale(1+w*0.08,1-w*0.08)}
+      else if(dance===2){c.translate(bx,by-Math.abs(Math.sin(d*6))*22);c.scale(Math.cos(d*6)||0.01,1)}
+      else{c.translate(bx,by);if(wig>0)c.rotate(Math.sin(wig*40)*0.12)}
+      drawPoo(c,0,0,party>=0?190:150,COLORS[o.color],outfitAcc(o),t);
       c.restore();
       if(party<0){
-        c.font="800 26px 'Baloo 2',sans-serif";c.textAlign="center";c.fillStyle="#8a5a2b";c.fillText("Dress up your poo!",W/2-20,38);
         rows.forEach(function(r,i){
-          var ry=352+i*50;
-          c.fillStyle="#fff";c.fillRect(20,ry-21,320,42);c.strokeStyle="#e3d3ad";c.lineWidth=3;c.strokeRect(20,ry-21,320,42);
+          var ry=272+i*40;
+          c.fillStyle="#fff";c.fillRect(20,ry-17,320,34);c.strokeStyle="#e3d3ad";c.lineWidth=3;c.strokeRect(20,ry-17,320,34);
           c.fillStyle="#ff5fa2";
-          c.beginPath();c.moveTo(34,ry);c.lineTo(54,ry-12);c.lineTo(54,ry+12);c.closePath();c.fill();
-          c.beginPath();c.moveTo(326,ry);c.lineTo(306,ry-12);c.lineTo(306,ry+12);c.closePath();c.fill();
-          c.fillStyle="#3b2412";c.font="700 20px 'Baloo 2',sans-serif";c.fillText(r[1][o[r[0]]],W/2,ry+7);
+          c.beginPath();c.moveTo(32,ry);c.lineTo(50,ry-11);c.lineTo(50,ry+11);c.closePath();c.fill();
+          c.beginPath();c.moveTo(328,ry);c.lineTo(310,ry-11);c.lineTo(310,ry+11);c.closePath();c.fill();
+          c.fillStyle="#3b2412";c.font="700 19px 'Baloo 2',sans-serif";c.textAlign="center";c.fillText(r[1][o[r[0]]],W/2,ry+7);
         });
-        c.fillStyle="#8b5cf6";c.fillRect(70,542,220,46);
-        c.fillStyle="#fff";c.font="800 26px 'Baloo 2',sans-serif";c.fillText("Party!",W/2,574);
+        DANCES.forEach(function(n,i){button(c,20+i*107,424,100,38,dance===i?"#ff922b":"#19b5a5",n)});
+        SOUNDS.forEach(function(n,i){button(c,20+i*80,470,74,38,"#ff5fa2",n)});
+        button(c,70,520,220,46,"#8b5cf6","Party!");
       }
       confDraw(c,conf);
     }
@@ -661,7 +697,8 @@ function buildHome(){
     var open=idx<p.hatched,a=open?accOf(q):"none";
     drawPoo(cv.getContext("2d"),100,208,has(a,"wings")?118:140,open?colOf(q):"#cbbfa3",a,0.1,!open);
     var lab=document.createElement("small");
-    lab.textContent=open?q.name:(idx===p.hatched?"Hatching next!":"Locked");
+    var rk=open?rankOf(q.game,p.best[q.game]):0;
+    lab.textContent=open?(q.name+(rk?"\n"+"⭐".repeat(rk):"")):(idx===p.hatched?"Hatching next!":"Locked");
     b.appendChild(cv);b.appendChild(lab);
     b.addEventListener("click",function(){
       if(open){sel=q;fart()}else{bleh()}
@@ -673,7 +710,9 @@ function buildHome(){
   $("cname").textContent=sel.name;
   $("cblurb").textContent=sel.blurb;
   var best=p.best[sel.game];
-  $("cbest").textContent=best?("Best score: "+best):"";
+  var rank=rankOf(sel.game,best),lv=TITLES[sel.game];
+  $("cbest").textContent=best?("Best score: "+best+(rank?" · "+RANKS[rank]:"")):"";
+  $("ctitle").textContent=!lv?"":rank<3?("Score "+lv[rank]+" to become a "+RANKS[rank+1]+"!"):"Top title earned!";
   $("play").textContent="Play "+sel.gname;
 }
 
@@ -715,16 +754,18 @@ function finish(res){
   var p=prof();
   p.pts+=res.pts;
   var newBest=res.score!=null&&res.score>(p.best[game.name]||0);
+  var rank0=rankOf(game.name,p.best[game.name]);
   if(newBest)p.best[game.name]=res.score;
+  var rank1=rankOf(game.name,p.best[game.name]);
   /* at most one new poo per game: the meter resets when one hatches */
   var hatched=null,next=POOS[p.hatched];
   if(next){p.meter+=res.pts;if(p.meter>=next.cost){p.hatched+=1;p.meter=0;hatched=next}}
   save();
-  $("otitle").textContent=res.title||(newBest&&res.score>0?"New best score!":"Party pooper!");
+  $("otitle").textContent=res.title||(rank1>rank0?"New title: "+RANKS[rank1]+"!":newBest&&res.score>0?"New best score!":"Party pooper!");
   $("oscore").textContent=res.score==null?"":res.score;
   $("opts").textContent="You earned ⭐ "+res.pts+" party points";
   $("hatch").textContent=hatched?("A new poo hatched: "+hatched.name+"!"):"";
-  if(hatched){sel=hatched;tada()}
+  if(hatched){sel=hatched;tada()}else if(rank1>rank0)tada();
   $("over").classList.add("on");
 }
 

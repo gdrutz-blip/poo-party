@@ -14,8 +14,9 @@ A silly collect-the-poos game for Farah, Mia and Gemma. Each poo has its own min
 | Peeky Poo | Whack-a-Poo | 50 |
 | Skater Poo | Poo Runner | 70 |
 | Fancy Poo | Dress-Up | 90 |
+| Sporty Poo | Poo Hop | 110 |
 
-Poos hatch in order, and one game can hatch at most one poo (the hatch meter resets each time). Once all five are hatched, the Poo Disco opens.
+Poos hatch in order, and one game can hatch at most one poo (the hatch meter resets each time). Once all six are hatched, the Poo Disco opens.
 
 Each scored game has three titles (Little Stinker, Super Pooper, Poo Master); the score levels are in `TITLES`.
 

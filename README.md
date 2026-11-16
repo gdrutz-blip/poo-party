@@ -21,11 +21,13 @@ A silly collect-the-poos game for Farah, Mia and Gemma. Each poo has its own min
 | Pirate Poo | Poo Pairs (memory cards) | 190 |
 | Ninja Poo | Poo Slice (swipe) | 210 |
 | Racer Poo | Poo Race (lane dodging) | 230 |
-| Justin Poober | Poo Beat (rhythm, 3 lanes) | 250 |
-| Michael Jacksonpoo | Poo Groove (rhythm, 4 lanes) | 270 |
-| Poozer | Poo Riff (rhythm, 5 lanes) | 290 |
+| Justin Poober | Poo Beat (rhythm) | 250 |
+| Michael Jacksonpoo | Poo Spotlight (keep the poo in the light) | 270 |
+| Poozer | Poo Bricks (breakout) | 290 |
+| Plumber Poo | Poo Pipes (rotate-the-pipes puzzle) | 310 |
+| Musketeer Poo | Poo Duel (sword timing) | 330 |
 
-Party points fill an egg. When it is full she taps it to hatch (7 taps) and the meter resets, so only one poo hatches at a time. Hatched poos sometimes ask for a wipe, a snack or a nap; ignoring them has no penalty and helping earns 4 party points. Once all fifteen are hatched, the Poo Disco opens.
+Party points fill an egg. When it is full she taps it to hatch (7 taps) and the meter resets, so only one poo hatches at a time. Hatched poos sometimes ask for a wipe, a snack or a nap; ignoring them has no penalty and helping earns 4 party points. Once all seventeen are hatched, the Poo Disco opens.
 
 Each scored game has three titles (Little Stinker, Super Pooper, Poo Master); the score levels are in `TITLES`.
 

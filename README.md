@@ -18,9 +18,20 @@ A silly collect-the-poos game for Farah, Mia and Gemma. Each poo has its own min
 | DJ Poo | Poo Says (memory tunes) | 130 |
 | Builder Poo | Poo Tower (stacking) | 150 |
 | Astro Poo | Poo Bounce (jumper) | 170 |
+| Pirate Poo | Poo Pairs (memory cards) | 190 |
+| Ninja Poo | Poo Slice (swipe) | 210 |
+| Racer Poo | Poo Race (lane dodging) | 230 |
 
-Party points fill an egg. When it is full she taps it to hatch (7 taps) and the meter resets, so only one poo hatches at a time. Hatched poos sometimes ask for a wipe, a snack or a nap; ignoring them has no penalty and helping earns 4 party points. Once all nine are hatched, the Poo Disco opens.
+Party points fill an egg. When it is full she taps it to hatch (7 taps) and the meter resets, so only one poo hatches at a time. Hatched poos sometimes ask for a wipe, a snack or a nap; ignoring them has no penalty and helping earns 4 party points. Once all twelve are hatched, the Poo Disco opens.
 
 Each scored game has three titles (Little Stinker, Super Pooper, Poo Master); the score levels are in `TITLES`.
 
 To add a poo: add an entry to `POOS`, write a game object with `tap`, `pointer`, `update(dt)` and `draw(ctx)`, and add it to `GAMES`.
+
+## Extras
+
+- **Hat shop:** spend party points on hats for any hatched poo. Rare hats (Golden Crown, Rainbow Afro, Angel Halo, Flame Hair) only come from golden eggs.
+- **Golden eggs:** earned the first time a game reaches its top title (Poo Master). Tap to hatch (9 taps) for a rare hat, or 25 bonus stars once all four are owned.
+- **Sticker book:** every poo hatched, every title, and 10 special stickers.
+- **Rename:** each player can give any hatched poo their own name (14 letters max).
+- **Play vs. a friend:** two players take turns on the same game; the winner gets 5 bonus stars.

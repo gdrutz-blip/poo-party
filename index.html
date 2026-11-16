@@ -53,12 +53,12 @@
          width:0;transition:width .6s}
   .room{width:100%;max-width:520px;margin-top:14px;background:var(--card);border-radius:28px;padding:16px 8px 10px;
         display:flex;flex-wrap:wrap;row-gap:10px;justify-content:space-around;align-items:flex-end;box-shadow:0 7px 0 #e3d3ad}
-  .poo{background:none;padding:0;display:flex;flex-direction:column;align-items:center;width:32%}
-  .poo canvas{width:86px;height:95px;animation:bob 1.6s ease-in-out infinite}
+  .poo{background:none;padding:0;display:flex;flex-direction:column;align-items:center;width:24%}
+  .poo canvas{width:72px;height:79px;animation:bob 1.6s ease-in-out infinite}
   .poo:nth-child(2) canvas{animation-delay:-.5s} .poo:nth-child(3) canvas{animation-delay:-1s}
   .poo.sel canvas{filter:drop-shadow(0 0 10px var(--yellow))}
   .poo.wig canvas{animation:wig .45s}
-  .poo small{font-size:15px;font-weight:700;line-height:1.15;text-align:center;min-height:36px;white-space:pre-line}
+  .poo small{font-size:13px;font-weight:700;line-height:1.15;text-align:center;min-height:36px;white-space:pre-line}
   #ctitle{font-size:16px;color:var(--purple);font-weight:700}
   #cneed{font-size:19px;font-weight:800;color:#e03131}
   .poo.ready canvas{animation:eggwob .9s ease-in-out infinite}
@@ -78,7 +78,29 @@
         background:#fff4d6ee;padding:20px;z-index:3}
   #over.on{display:flex}
   #over .big{font-size:60px;font-weight:800;color:var(--pink);line-height:1}
-  #hatch{font-size:22px;font-weight:800;color:var(--purple);min-height:0}
+  #hatch{font-size:22px;font-weight:800;color:var(--purple);min-height:0;white-space:pre-line;text-align:center}
+  .btn:disabled{opacity:.5}
+  .strip{flex:0 0 auto;min-height:78px;display:flex;gap:8px;overflow-x:auto;max-width:520px;width:100%;padding:8px 4px}
+  .spoo{flex:0 0 auto;height:72px;background:var(--card);border-radius:16px;padding:4px;box-shadow:0 3px 0 #e3d3ad}
+  .spoo.sel{outline:4px solid var(--pink)}
+  .spoo canvas{width:56px;height:62px;display:block}
+  #shopprev{flex:0 0 auto;width:150px;height:169px;margin:4px 0}
+  .hatgrid{flex:0 0 auto;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;max-width:520px;margin:8px 0 14px}
+  .hat{background:var(--card);border-radius:18px;padding:8px 4px;box-shadow:0 4px 0 #e3d3ad;display:flex;flex-direction:column;align-items:center;font-size:14px;font-weight:700;line-height:1.15;white-space:pre-line;text-align:center}
+  .hat canvas{width:80px;height:88px}
+  .hat.sel{outline:4px solid var(--pink)} .hat.on{background:#e6fcf5} .hat.locked{opacity:.55}
+  .bookbody{width:100%;max-width:520px;display:flex;flex-direction:column;gap:6px;padding-bottom:24px}
+  .bookbody h3{margin:12px 0 4px;font-size:22px}
+  .sgrid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+  .stk{background:var(--card);border-radius:16px;padding:6px 2px;text-align:center;font-size:13px;font-weight:700;box-shadow:0 3px 0 #e3d3ad;line-height:1.1}
+  .stk canvas{width:64px;height:70px;display:block;margin:0 auto}
+  .stk .em{font-size:38px;line-height:64px;height:64px}
+  .stk.off{opacity:.45;filter:grayscale(1)}
+  .trow{display:flex;justify-content:space-between;background:var(--card);border-radius:14px;padding:8px 14px;font-weight:700;font-size:17px;box-shadow:0 3px 0 #e3d3ad}
+  #rename,#vsbox{position:fixed;inset:0;display:none;align-items:center;justify-content:center;background:#0008;z-index:10}
+  #rename.on,#vsbox.on{display:flex}
+  .rbox{background:var(--card);padding:20px;border-radius:24px;display:flex;flex-direction:column;gap:12px;align-items:center;width:min(86vw,340px)}
+  #rinput{font:inherit;font-size:24px;text-align:center;padding:10px;border-radius:14px;border:3px solid var(--yellow);width:100%;user-select:text;-webkit-user-select:text}
 </style>
 </head>
 <body>
@@ -96,6 +118,7 @@
   </div>
   <div class="bar"><i id="barfill"></i></div>
   <p id="next"></p>
+  <button class="btn" id="golden" style="display:none"></button>
   <div class="room" id="room"></div>
   <div class="card">
     <h2 id="cname"></h2>
@@ -106,13 +129,38 @@
     <button class="btn" id="care" style="display:none"></button>
     <button class="btn" id="play"></button>
     <button class="btn alt" id="play2" style="display:none"></button>
+    <button class="btn alt" id="vs" style="display:none">👫 Play vs. a friend</button>
     <button class="btn alt" id="disco" style="display:none">🪩 Poo Disco!</button>
+    <button class="btn alt small" id="renamebtn">✏️ Rename</button>
   </div>
   <div class="foot">
+    <button class="btn alt small" id="shopbtn">🎩 Hat shop</button>
+    <button class="btn alt small" id="bookbtn">📖 Stickers</button>
     <button class="btn alt small" id="switch">Switch player</button>
     <button class="btn alt small" id="mute">Sound: on</button>
     <button class="btn alt small" id="reset">Start over</button>
   </div>
+</section>
+
+<section id="shop" class="screen">
+  <div class="top">
+    <button class="btn alt small" id="shopback">← Back</button>
+    <span class="chip" id="shopstars"></span>
+  </div>
+  <h2>Hat Shop</h2>
+  <div class="strip" id="shoppoos"></div>
+  <canvas id="shopprev" width="240" height="270"></canvas>
+  <button class="btn" id="shopbuy" style="display:none"></button>
+  <div class="hatgrid" id="hatgrid"></div>
+</section>
+
+<section id="book" class="screen">
+  <div class="top">
+    <button class="btn alt small" id="bookback">← Back</button>
+    <span class="chip" id="bookcount"></span>
+  </div>
+  <h2>Sticker Book</h2>
+  <div class="bookbody" id="bookbody"></div>
 </section>
 
 <section id="game" class="screen">
@@ -128,6 +176,18 @@
   </div>
 </section>
 
+<div id="rename"><div class="rbox">
+  <h2>Name your poo</h2>
+  <input id="rinput" maxlength="14" autocomplete="off">
+  <button class="btn" id="rsave">Save</button>
+  <button class="btn alt" id="rcancel">Cancel</button>
+</div></div>
+<div id="vsbox"><div class="rbox">
+  <h2>Play against...</h2>
+  <div id="vsbtns" style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center"></div>
+  <button class="btn alt" id="vscancel">Cancel</button>
+</div></div>
+
 <script>
 (function(){
 "use strict";
@@ -140,7 +200,7 @@ var NAMES=["Farah","Mia","Gemma"];
 var PCOL={Farah:"#8b5cf6",Mia:"#19b5a5",Gemma:"#ff5fa2"};
 var store={profiles:{}};
 var OLD_NEED=[0,25,60,110];
-NAMES.forEach(function(n){store.profiles[n]={pts:0,best:{},hatched:1,meter:0,care:{},outfit:{hat:0,eyes:0,extra:0,color:0}}});
+NAMES.forEach(function(n){store.profiles[n]={pts:0,best:{},hatched:1,meter:0,care:{},spent:0,hats:[],wear:{},names:{},golden:0,goldHatched:0,cared:0,wins:0,outfit:{hat:0,eyes:0,extra:0,color:0}}});
 try{
   var s=JSON.parse(localStorage.getItem(KEY));
   if(s&&s.profiles)NAMES.forEach(function(n){
@@ -149,6 +209,8 @@ try{
     if(o.hatched){p.hatched=o.hatched;p.meter=o.meter||0}
     else{p.hatched=OLD_NEED.filter(function(v){return p.pts>=v}).length}
     if(o.care)p.care=o.care;
+    p.spent=o.spent||0;p.hats=o.hats||[];p.wear=o.wear||{};p.names=o.names||{};
+    p.golden=o.golden||0;p.goldHatched=o.goldHatched||0;p.cared=o.cared||0;p.wins=o.wins||0;
     if(o.outfit)["hat","eyes","extra","color"].forEach(function(k){p.outfit[k]=o.outfit[k]||0});
   });
 }catch(e){}
@@ -174,7 +236,13 @@ var POOS=[
   {id:"builder",name:"Builder Poo",color:"#97612f",acc:"hardhat",cost:150,game:"tower",gname:"Poo Tower",
    blurb:"Tap to drop each block. Line them up to build the tallest tower!"},
   {id:"astro",name:"Astro Poo",color:"#84552a",acc:"helmet",cost:170,game:"bounce",gname:"Poo Bounce",
-   blurb:"Drag your finger to steer. Bounce up the toilet seats all the way to the moon!"}
+   blurb:"Drag your finger to steer. Bounce up the toilet seats all the way to the moon!"},
+  {id:"pirate",name:"Pirate Poo",color:"#8f5c2e",acc:"pirate patch",cost:190,game:"pairs",gname:"Poo Pairs",
+   blurb:"Flip the cards and find the matching poos. Beat the clock!"},
+  {id:"ninja",name:"Ninja Poo",color:"#7b4c26",acc:"ninja",cost:210,game:"slice",gname:"Poo Slice",
+   blurb:"Swipe to slice the toilet paper and ducks. Don't slice the broccoli!"},
+  {id:"racer",name:"Racer Poo",color:"#94602f",acc:"racer goggles",cost:230,game:"race",gname:"Poo Race",
+   blurb:"Tap left or right to change lanes. Dodge everything and zoom!"}
 ];
 var HATS=["none","hat","party","crown","bow"],HATN=["No hat","Top hat","Party hat","Crown","Bow"];
 var EYES=["none","shades","round"],EYEN=["No glasses","Cool shades","Round glasses"];
@@ -182,7 +250,37 @@ var EXTRAS=["none","stache","wings","gold"],EXN=["Nothing extra","Moustache","Wi
 var COLORS=["#8a5a2b","#f5b800","#ff7eb6","#19b5a5","#8b5cf6"],COLN=["Classic brown","Golden","Pink","Teal","Purple"];
 function has(a,k){return (" "+a+" ").indexOf(" "+k+" ")>=0}
 function outfitAcc(o){return HATS[o.hat]+" "+EYES[o.eyes]+" "+EXTRAS[o.extra]}
-function accOf(q){return q.id==="fancy"?outfitAcc(prof().outfit):q.acc}
+var HEADTOK=["hat","party","crown","bow","band","phones","hardhat","helmet","cap","chef","cowboy","wizard","santa","pirate","unicorn","gcrown","rainbow","halo","flame","ninja","racer"];
+var HATSHOP=[
+  {id:"party",tok:"party",name:"Party Hat",price:15},
+  {id:"cap",tok:"cap",name:"Baseball Cap",price:20},
+  {id:"bow",tok:"bow",name:"Pink Bow",price:20},
+  {id:"hat",tok:"hat",name:"Top Hat",price:25},
+  {id:"chef",tok:"chef",name:"Chef Hat",price:30},
+  {id:"cowboy",tok:"cowboy",name:"Cowboy Hat",price:30},
+  {id:"wizard",tok:"wizard",name:"Wizard Hat",price:40},
+  {id:"santa",tok:"santa",name:"Santa Hat",price:40},
+  {id:"pirate",tok:"pirate",name:"Pirate Hat",price:50},
+  {id:"crown",tok:"crown",name:"Royal Crown",price:60},
+  {id:"unicorn",tok:"unicorn",name:"Unicorn Horn",price:80}
+];
+var RAREHATS=[
+  {id:"gcrown",tok:"gcrown",name:"Golden Crown",rare:true},
+  {id:"rainbow",tok:"rainbow",name:"Rainbow Afro",rare:true},
+  {id:"halo",tok:"halo",name:"Angel Halo",rare:true},
+  {id:"flame",tok:"flame",name:"Flame Hair",rare:true}
+];
+function hatById(id){
+  var all=HATSHOP.concat(RAREHATS);
+  for(var i=0;i<all.length;i++)if(all[i].id===id)return all[i];
+  return null;
+}
+function headSwap(base,tok){return base.split(" ").filter(function(t){return t&&HEADTOK.indexOf(t)<0}).join(" ")+" "+tok}
+function baseAcc(q){return q.id==="fancy"?outfitAcc(prof().outfit):q.acc}
+function accOf(q){var w=prof().wear[q.id],h=w&&hatById(w);return h?headSwap(baseAcc(q),h.tok):baseAcc(q)}
+function accWith(q,tok){return headSwap(baseAcc(q),tok)}
+function gameAcc(id,base){var w=prof().wear[id],h=w&&hatById(w);return h?headSwap(base,h.tok):base}
+function nameOf(q){return (prof().names||{})[q.id]||q.name}
 function colOf(q){return q.id==="fancy"?COLORS[prof().outfit.color]:q.color}
 function noop(){}
 /* ---------- care: poos sometimes need a wipe, a snack or a nap (no penalty if ignored) ---------- */
@@ -206,7 +304,7 @@ function tickCare(){
   return changed;
 }
 /* score needed in each game for each title */
-var TITLES={"catch":[30,70,130],flap:[5,15,40],whack:[8,15,25],run:[10,30,50],hop:[15,40,80],match:[5,10,20],says:[4,8,12],tower:[8,18,30],bounce:[10,25,50]};
+var TITLES={"catch":[30,70,130],flap:[5,15,40],whack:[8,15,25],run:[10,30,50],hop:[15,40,80],match:[5,10,20],says:[4,8,12],tower:[8,18,30],bounce:[10,25,50],pairs:[9,27,47],slice:[15,40,80],race:[25,60,120]};
 var RANKS=["","Little Stinker","Super Pooper","Poo Master"];
 function rankOf(g,best){var a=TITLES[g];if(!a)return 0;return a.filter(function(v){return (best||0)>=v}).length}
 var me=null, sel=POOS[0];
@@ -353,6 +451,81 @@ function drawPoo(c,x,y,s,color,acc,t,noFace){
     c.strokeStyle="#8fd3ff";c.lineWidth=Math.max(2,0.035*s);c.stroke();
     c.strokeStyle="rgba(255,255,255,0.85)";c.lineWidth=Math.max(2,0.03*s);
     c.beginPath();c.arc(x,y-0.58*s,0.33*s,1.15*Math.PI,1.45*Math.PI);c.stroke();
+  }
+  if(!noFace){
+    if(has(acc,"cap")){
+      c.fillStyle="#1c7ed6";c.beginPath();c.arc(x,y-0.79*s,0.22*s,Math.PI,2*Math.PI);c.fill();
+      c.fillStyle="#1864ab";ell(c,x+0.2*s,y-0.8*s,0.2*s,0.045*s);ell(c,x,y-1.01*s,0.03*s,0.03*s);
+    }
+    if(has(acc,"chef")){
+      c.fillStyle="#fff";c.strokeStyle="#c9ced6";c.lineWidth=Math.max(1.5,0.02*s);
+      [[-0.15,-1.0,0.13],[0.15,-1.0,0.13],[0,-1.1,0.16]].forEach(function(d){c.beginPath();c.arc(x+d[0]*s,y+d[1]*s,d[2]*s,0,Math.PI*2);c.fill();c.stroke()});
+      c.fillRect(x-0.2*s,y-0.9*s,0.4*s,0.13*s);c.strokeRect(x-0.2*s,y-0.9*s,0.4*s,0.13*s);
+    }
+    if(has(acc,"cowboy")){
+      c.fillStyle="#a66a2c";ell(c,x,y-0.8*s,0.4*s,0.07*s);c.fillRect(x-0.16*s,y-1.0*s,0.32*s,0.2*s);
+      c.fillStyle="#7a4a1c";c.fillRect(x-0.16*s,y-0.86*s,0.32*s,0.04*s);ell(c,x,y-1.0*s,0.16*s,0.04*s);
+    }
+    if(has(acc,"wizard")){
+      c.fillStyle="#6741d9";c.beginPath();c.moveTo(x-0.23*s,y-0.8*s);c.lineTo(x+0.23*s,y-0.8*s);c.lineTo(x+0.04*s,y-1.38*s);c.closePath();c.fill();
+      ell(c,x,y-0.8*s,0.32*s,0.05*s);
+      c.fillStyle="#ffd43b";ell(c,x-0.04*s,y-1.0*s,0.035*s,0.035*s);ell(c,x+0.08*s,y-1.15*s,0.03*s,0.03*s);ell(c,x-0.1*s,y-0.88*s,0.025*s,0.025*s);
+    }
+    if(has(acc,"santa")){
+      c.fillStyle="#e03131";c.beginPath();c.moveTo(x-0.22*s,y-0.8*s);c.lineTo(x+0.22*s,y-0.8*s);c.lineTo(x+0.12*s,y-1.12*s);c.closePath();c.fill();
+      c.fillStyle="#fff";c.fillRect(x-0.26*s,y-0.86*s,0.52*s,0.09*s);ell(c,x+0.12*s,y-1.13*s,0.065*s,0.065*s);
+    }
+    if(has(acc,"pirate")){
+      c.fillStyle="#222";ell(c,x,y-0.86*s,0.36*s,0.08*s);
+      c.beginPath();c.moveTo(x-0.22*s,y-0.86*s);c.lineTo(x+0.22*s,y-0.86*s);c.lineTo(x,y-1.1*s);c.closePath();c.fill();
+      c.fillStyle="#fff";ell(c,x,y-0.95*s,0.045*s,0.045*s);c.fillRect(x-0.03*s,y-0.92*s,0.06*s,0.03*s);
+    }
+    if(has(acc,"patch")){
+      c.fillStyle="#222";ell(c,x-0.13*s,y-0.46*s,0.1*s,0.11*s);
+      c.strokeStyle="#222";c.lineWidth=Math.max(2,0.025*s);c.beginPath();c.moveTo(x-0.34*s,y-0.58*s);c.lineTo(x+0.2*s,y-0.62*s);c.stroke();
+    }
+    if(has(acc,"unicorn")){
+      c.fillStyle="#ffd6ec";c.beginPath();c.moveTo(x-0.06*s,y-0.82*s);c.lineTo(x+0.06*s,y-0.82*s);c.lineTo(x,y-1.22*s);c.closePath();c.fill();
+      c.strokeStyle="#ff8ac0";c.lineWidth=Math.max(1.5,0.02*s);c.beginPath();
+      c.moveTo(x-0.04*s,y-0.92*s);c.lineTo(x+0.04*s,y-0.96*s);c.moveTo(x-0.03*s,y-1.04*s);c.lineTo(x+0.03*s,y-1.07*s);c.stroke();
+      c.fillStyle="#ff8ac0";ell(c,x-0.14*s,y-0.82*s,0.06*s,0.06*s);ell(c,x+0.14*s,y-0.82*s,0.06*s,0.06*s);
+    }
+    if(has(acc,"gcrown")){
+      c.fillStyle="#ffc93c";c.beginPath();c.moveTo(x-0.22*s,y-0.86*s);c.lineTo(x-0.24*s,y-1.16*s);c.lineTo(x-0.11*s,y-1.02*s);c.lineTo(x,y-1.22*s);
+      c.lineTo(x+0.11*s,y-1.02*s);c.lineTo(x+0.24*s,y-1.16*s);c.lineTo(x+0.22*s,y-0.86*s);c.closePath();c.fill();
+      c.strokeStyle="#c98f00";c.lineWidth=Math.max(1.5,0.02*s);c.stroke();
+      c.fillStyle="#e03131";ell(c,x,y-0.95*s,0.035*s,0.035*s);c.fillStyle="#339af0";ell(c,x-0.12*s,y-0.93*s,0.025*s,0.025*s);ell(c,x+0.12*s,y-0.93*s,0.025*s,0.025*s);
+      c.fillStyle="#fff";ell(c,x,y-1.2*s,0.03*s,0.03*s);
+    }
+    if(has(acc,"rainbow")){
+      var rc=["#e03131","#f08c00","#ffd43b","#40c057","#339af0","#7048e8","#e64980"];
+      for(var ri=0;ri<7;ri++){var an=Math.PI*(1+ri/6);c.fillStyle=rc[ri];ell(c,x+Math.cos(an)*0.28*s,y-0.82*s+Math.sin(an)*0.3*s,0.11*s,0.11*s)}
+    }
+    if(has(acc,"halo")){
+      c.strokeStyle="rgba(255,214,60,0.95)";c.lineWidth=Math.max(3,0.045*s);c.beginPath();c.ellipse(x,y-1.0*s,0.2*s,0.055*s,0,0,Math.PI*2);c.stroke();
+    }
+    if(has(acc,"flame")){
+      [[-0.16,0.2,"#ff922b"],[0.14,0.22,"#ff922b"],[0,0.34,"#f03e3e"]].forEach(function(f){
+        c.fillStyle=f[2];c.beginPath();c.moveTo(x+(f[0]-0.1)*s,y-0.8*s);c.quadraticCurveTo(x+(f[0]-0.1)*s,y-(0.8+f[1])*s,x+f[0]*s,y-(0.92+f[1])*s);
+        c.quadraticCurveTo(x+(f[0]+0.1)*s,y-(0.8+f[1])*s,x+(f[0]+0.1)*s,y-0.8*s);c.closePath();c.fill();
+      });
+      c.fillStyle="#ffd43b";ell(c,x,y-0.9*s,0.06*s,0.09*s);
+    }
+    if(has(acc,"ninja")){
+      c.fillStyle="#222";c.fillRect(x-0.235*s,y-0.72*s,0.47*s,0.075*s);
+      c.fillStyle="#cfd8e3";c.fillRect(x-0.07*s,y-0.715*s,0.14*s,0.065*s);
+      c.fillStyle="#222";c.beginPath();c.moveTo(x+0.22*s,y-0.69*s);c.lineTo(x+0.4*s,y-0.78*s);c.lineTo(x+0.36*s,y-0.66*s);c.closePath();c.fill();
+      c.beginPath();c.moveTo(x+0.22*s,y-0.69*s);c.lineTo(x+0.38*s,y-0.58*s);c.lineTo(x+0.3*s,y-0.55*s);c.closePath();c.fill();
+    }
+    if(has(acc,"racer")){
+      c.fillStyle="#e03131";c.beginPath();c.arc(x,y-0.78*s,0.26*s,Math.PI,2*Math.PI);c.fill();
+      c.fillStyle="#fff";c.fillRect(x-0.04*s,y-1.04*s,0.08*s,0.26*s);
+    }
+    if(has(acc,"goggles")){
+      c.fillStyle="rgba(100,200,255,0.55)";c.strokeStyle="#222";c.lineWidth=Math.max(2,0.03*s);
+      [-0.13,0.13].forEach(function(d){c.beginPath();c.arc(x+d*s,y-0.46*s,0.105*s,0,Math.PI*2);c.fill();c.stroke()});
+      c.beginPath();c.moveTo(x-0.03*s,y-0.46*s);c.lineTo(x+0.03*s,y-0.46*s);c.stroke();
+    }
   }
   if(has(acc,"gold")){
     c.fillStyle="#fff";
@@ -544,7 +717,7 @@ function FlapGame(){
       c.fillStyle="#9bd36b";c.fillRect(0,GROUND,W,H-GROUND);
       c.fillStyle="#7dbb4e";c.fillRect(0,GROUND,W,6);
       c.save();c.translate(BX,y+18);c.rotate(Math.max(-0.4,Math.min(0.6,vy/500)));
-      drawPoo(c,0,0,40,"#b5763a","wings",t);c.restore();
+      drawPoo(c,0,0,40,"#b5763a",gameAcc("flappy","wings"),t);c.restore();
       hud(c,"Towers: "+score,null);
       if(!started)banner(c,"Tap to flap!");
     }
@@ -657,7 +830,7 @@ function RunGame(){
       if(!(safe>0&&Math.floor(t*12)%2)){
         c.fillStyle="#ff5fa2";c.fillRect(BX-26,y+4,52,6);
         c.fillStyle="#222";ell(c,BX-16,y+12,5,5);ell(c,BX+16,y+12,5,5);
-        drawPoo(c,BX,y+6,44,"#7a4a22","shades",t);
+        drawPoo(c,BX,y+6,44,"#7a4a22",gameAcc("skater","shades"),t);
       }
       c.font="800 24px 'Baloo 2',sans-serif";c.textAlign="center";
       pops.forEach(function(p){c.globalAlpha=Math.max(0,p.a);c.fillStyle=p.txt==="OUCH!"?"#e03131":"#ff5fa2";c.fillText(p.txt,p.x,p.y)});
@@ -741,7 +914,7 @@ function HopGame(){
         });
       }
       if(!(safe>0&&Math.floor(t*12)%2))
-        drawPoo(c,20+col*C,sy(row)+17-Math.sin(hopT/0.12*Math.PI)*10,34,"#9a6233","band shoes",t);
+        drawPoo(c,20+col*C,sy(row)+17-Math.sin(hopT/0.12*Math.PI)*10,34,"#9a6233",gameAcc("sporty","band shoes"),t);
       c.fillStyle="rgba(77,171,247,0.75)";c.beginPath();c.moveTo(0,H);
       for(var wx=0;wx<=W;wx+=20)c.lineTo(wx,H-26+Math.sin(t*4+wx*0.05)*5);
       c.lineTo(W,H);c.closePath();c.fill();
@@ -961,7 +1134,7 @@ function CareGame(){
     draw:function(c){
       var night=mode==="sleep"&&!lightOn;
       c.fillStyle=night?"#1b2144":mode==="wipe"?"#e4f7ff":mode==="snack"?"#fff4d6":"#ffeedd";c.fillRect(0,0,W,H);
-      var msg=done?"So happy!":mode==="wipe"?"Scrub the stink away!":mode==="snack"?"Feed "+q.name+"!":lightOn?"Tap the lamp to turn it off":"Tap to rock "+q.name+" to sleep";
+      var msg=done?"So happy!":mode==="wipe"?"Scrub the stink away!":mode==="snack"?"Feed "+nameOf(q)+"!":lightOn?"Tap the lamp to turn it off":"Tap to rock "+nameOf(q)+" to sleep";
       c.font="800 26px 'Baloo 2',sans-serif";c.textAlign="center";c.lineWidth=5;c.strokeStyle=night?"#1b2144":"#fff";c.fillStyle=night?"#ffd6ec":"#3b2412";
       c.strokeText(msg,W/2,56);c.fillText(msg,W/2,56);
       var s=200;
@@ -1019,9 +1192,14 @@ function CareGame(){
   };
 }
 
-/* ---------- egg hatching ---------- */
+/* ---------- egg hatching (normal and golden) ---------- */
+var pendingGolden=false;
 function HatchGame(){
-  var q=POOS[prof().hatched],taps=0,NEED=7,t=0,wob=0,done=false,doneT=0,conf=[];
+  var golden=pendingGolden;pendingGolden=false;
+  var pr=prof(),q=golden?sel:POOS[pr.hatched],prize=null;
+  if(golden)for(var i=0;i<RAREHATS.length;i++)if(pr.hats.indexOf(RAREHATS[i].id)<0){prize=RAREHATS[i];break}
+  var ecol=golden?"#c98f00":q.color,taps=0,NEED=golden?9:7,t=0,wob=0,done=false,doneT=0,conf=[];
+  var title=golden?(prize?"You got the "+prize.name+"!":"Bonus ⭐ 25!"):"It's "+q.name+"!";
   return {
     name:"hatch",
     pointer:noop,
@@ -1033,28 +1211,34 @@ function HatchGame(){
     },
     update:function(dt){
       t+=dt;wob-=dt;confStep(conf,dt);
-      if(done){doneT+=dt;if(Math.floor(doneT/0.8)!==Math.floor((doneT+dt)/0.8))fart();if(doneT>3.6)return {score:null,pts:0,hatchPoo:true,title:"It's "+q.name+"!"}}
+      if(done){doneT+=dt;if(Math.floor(doneT/0.8)!==Math.floor((doneT+dt)/0.8))fart();
+        if(doneT>3.8)return {score:null,pts:0,hatchPoo:!golden,golden:golden,prize:prize?prize.id:null,title:title}}
       return null;
     },
     draw:function(c){
-      c.fillStyle=done?"hsl("+Math.floor(doneT*120)%360+",90%,92%)":"#fff7e0";c.fillRect(0,0,W,H);
+      c.fillStyle=done?"hsl("+Math.floor(doneT*120)%360+",90%,92%)":golden?"#fff3c4":"#fff7e0";c.fillRect(0,0,W,H);
       c.font="800 28px 'Baloo 2',sans-serif";c.textAlign="center";c.lineWidth=5;c.strokeStyle="#fff";c.fillStyle="#3b2412";
-      var msg=done?(doneT>0.5?"It's "+q.name+"!":"Hatching!"):taps===0?"Tap the egg!":taps<NEED-2?"Keep tapping!":"Almost there!";
+      var msg=done?(doneT>0.5?title:"Hatching!"):taps===0?(golden?"Tap the golden egg!":"Tap the egg!"):taps<NEED-2?"Keep tapping!":"Almost there!";
       c.strokeText(msg,W/2,70);c.fillText(msg,W/2,70);
+      if(golden&&!done){
+        c.fillStyle="#fff7a8";
+        for(var k=0;k<7;k++){var a=t*1.6+k*0.9,sx=180+Math.cos(a)*150,sy=300+Math.sin(a*1.3)*170;c.fillRect(sx-2,sy-9,4,18);c.fillRect(sx-9,sy-2,18,4)}
+      }
       if(!done){
         c.save();c.translate(180,450);
         if(wob>0)c.rotate(Math.sin(wob*45)*0.14*Math.min(1,wob*3));
-        drawEgg(c,0,0,320,q.color,taps/NEED);
+        drawEgg(c,0,0,320,ecol,taps/NEED);
         c.restore();
       }else{
-        var k=Math.min(1,doneT/0.5);
-        c.save();c.beginPath();c.rect(0,380,W,300);c.clip();c.translate(180,450);drawEgg(c,0,0,320,q.color,1);c.restore();
-        c.save();c.translate(180,440-Math.abs(Math.sin(doneT*5))*22*k);
-        drawPoo(c,0,0,230*(0.35+0.65*k),q.id==="fancy"?COLORS[0]:q.color,q.acc,t);c.restore();
+        var k2=Math.min(1,doneT/0.5);
+        c.save();c.beginPath();c.rect(0,380,W,300);c.clip();c.translate(180,450);drawEgg(c,0,0,320,ecol,1);c.restore();
+        c.save();c.translate(180,440-Math.abs(Math.sin(doneT*5))*22*k2);
+        var pacc=golden?(prize?accWith(q,prize.tok):accOf(q)):q.acc,pcol=golden?colOf(q):(q.id==="fancy"?COLORS[0]:q.color);
+        drawPoo(c,0,0,230*(0.35+0.65*k2),pcol,pacc,t);c.restore();
         var al=Math.max(0,1-doneT*1.6);
         if(al>0){
           c.save();c.globalAlpha=al;c.beginPath();c.rect(0,0,W,380);c.clip();
-          c.translate(180+doneT*90,450-doneT*260);c.rotate(doneT*2.2);drawEgg(c,0,0,320,q.color,1);c.restore();
+          c.translate(180+doneT*90,450-doneT*260);c.rotate(doneT*2.2);drawEgg(c,0,0,320,ecol,1);c.restore();
         }
       }
       confDraw(c,conf);
@@ -1163,7 +1347,7 @@ function TowerGame(){
       blocks.forEach(function(b,i){var y=ly(i);if(y>-BH&&y<H+BH)block(c,b.x,y,b.w,COLS[i%COLS.length])});
       if(cur){
         block(c,cur.x,ly(blocks.length),cur.w,COLS[blocks.length%COLS.length]);
-        drawPoo(c,cur.x+cur.w/2,ly(blocks.length)+2,34,"#97612f","hardhat",t);
+        drawPoo(c,cur.x+cur.w/2,ly(blocks.length)+2,34,"#97612f",gameAcc("builder","hardhat"),t);
       }
       chips.forEach(function(k){block(c,k.x,ly(k.lvl)+k.dy,k.w,k.col)});
       c.font="800 24px 'Baloo 2',sans-serif";c.textAlign="center";c.fillStyle="#ff5fa2";
@@ -1232,7 +1416,7 @@ function BounceGame(){
         if(p.type==="c"){c.beginPath();c.moveTo(p.x+p.w*0.4,y);c.lineTo(p.x+p.w*0.5,y+14);c.stroke()}
       });
       c.save();c.translate(px,py-camY);c.scale(1+sq*0.6,1-sq*0.5);
-      drawPoo(c,0,0,46,"#84552a","helmet",t);c.restore();
+      drawPoo(c,0,0,46,"#84552a",gameAcc("astro","helmet"),t);c.restore();
       c.font="800 24px 'Baloo 2',sans-serif";c.textAlign="center";c.fillStyle="#ff5fa2";
       pops.forEach(function(p){c.globalAlpha=Math.max(0,p.a);c.fillText(p.txt,p.x,p.y-camY)});
       c.globalAlpha=1;
@@ -1242,10 +1426,222 @@ function BounceGame(){
   };
 }
 
+/* ---------- game 10: Poo Pairs ---------- */
+function PairsGame(){
+  var SYM=["hat","party","crown","bow","cap","chef","wizard","pirate","santa","cowboy"];
+  var SC=["#8a5a2b","#b5763a","#ff7eb6","#19b5a5","#8b5cf6","#f5b800","#e03131","#339af0","#ff922b","#2f9e44"];
+  var SIZES=[[2,3],[3,4],[4,4],[4,5]];
+  var lvl=0,cards=[],flipped=[],lock=0,score=0,left=45,t=0,started=false,conf=[],cols=2,rows=3,cw=0,ch=0,G=8,gx=16,gy=112;
+  function rnd(){return Math.random()-0.5}
+  function deal(){
+    var sz=SIZES[Math.min(lvl,SIZES.length-1)];cols=sz[0];rows=sz[1];
+    var n=cols*rows/2,idx=[0,1,2,3,4,5,6,7,8,9].sort(rnd).slice(0,n),list=[];
+    idx.forEach(function(i){list.push({sym:SYM[i],col:SC[i],up:false,done:false},{sym:SYM[i],col:SC[i],up:false,done:false})});
+    cards=list.sort(rnd);flipped=[];lock=0;
+    cw=(W-32-(cols-1)*G)/cols;ch=(440-(rows-1)*G)/rows;
+  }
+  deal();
+  function cardAt(x,y){
+    var cc=Math.floor((x-gx)/(cw+G)),rr=Math.floor((y-gy)/(ch+G));
+    if(cc<0||cc>=cols||rr<0||rr>=rows)return null;
+    if(x>gx+cc*(cw+G)+cw||y>gy+rr*(ch+G)+ch)return null;
+    return cards[rr*cols+cc];
+  }
+  return {
+    name:"pairs",
+    pointer:noop,
+    tap:function(x,y){
+      if(lock>0)return;
+      var k=cardAt(x,y);if(!k||k.up||k.done)return;
+      k.up=true;flipped.push(k);started=true;tone("triangle",500+flipped.length*140,700,0.1,0.15);
+      if(flipped.length===2)lock=flipped[0].sym===flipped[1].sym?0.5:0.9;
+    },
+    update:function(dt){
+      t+=dt;confStep(conf,dt);
+      if(started)left-=dt;
+      if(lock>0){
+        lock-=dt;
+        if(lock<=0&&flipped.length===2){
+          if(flipped[0].sym===flipped[1].sym){
+            flipped[0].done=true;flipped[1].done=true;score++;ding();confAdd(conf,W/2,300,10,true);
+            if(cards.every(function(k){return k.done})){lvl++;left+=Math.max(4,14-lvl*2);tada();deal()}
+          }else{flipped[0].up=false;flipped[1].up=false;tone("sine",220,160,0.12,0.1)}
+          flipped=[];
+        }
+      }
+      if(left<=0)return {score:score,pts:score*2};
+      return null;
+    },
+    draw:function(c){
+      c.fillStyle="#efe6ff";c.fillRect(0,0,W,H);
+      c.fillStyle="#fff";c.fillRect(14,56,332,14);
+      c.fillStyle=left<10?"#e03131":"#19b5a5";c.fillRect(14,56,332*Math.min(1,Math.max(0,left)/45),14);
+      c.strokeStyle="#3b2412";c.lineWidth=2;c.strokeRect(14,56,332,14);
+      var m=Math.min(cw,ch);
+      cards.forEach(function(k,i){
+        var col=i%cols,row=Math.floor(i/cols),cx=gx+col*(cw+G),cy=gy+row*(ch+G);
+        c.globalAlpha=k.done?0.35:1;
+        if(k.up||k.done){
+          c.fillStyle="#fff";c.fillRect(cx,cy,cw,ch);c.strokeStyle="#c9b8f5";c.lineWidth=3;c.strokeRect(cx,cy,cw,ch);
+          drawPoo(c,cx+cw/2,cy+ch*0.88,m*0.62,k.col,k.sym,t);
+        }else{
+          c.fillStyle="#8b5cf6";c.fillRect(cx,cy,cw,ch);
+          c.fillStyle="#b69bff";c.font="800 "+Math.round(m*0.5)+"px 'Baloo 2',sans-serif";c.textAlign="center";c.fillText("?",cx+cw/2,cy+ch/2+m*0.18);
+        }
+        c.globalAlpha=1;
+      });
+      confDraw(c,conf);
+      hud(c,"Pairs: "+score,null);
+      if(!started){c.font="700 18px 'Baloo 2',sans-serif";c.textAlign="center";c.fillStyle="#3b2412";c.fillText("Tap two cards to find a pair!",W/2,100)}
+    }
+  };
+}
+
+/* ---------- game 11: Poo Slice ---------- */
+function SliceGame(){
+  var objs=[],bits=[],trail=[],pops=[],score=0,lives=3,t=0,spawn=0.5,down=false,lx=0,ly=0,shake=0;
+  function segDist(px,py,x1,y1,x2,y2){
+    var dx=x2-x1,dy=y2-y1,l=dx*dx+dy*dy,k=l?Math.max(0,Math.min(1,((px-x1)*dx+(py-y1)*dy)/l)):0;
+    return Math.hypot(px-(x1+k*dx),py-(y1+k*dy));
+  }
+  function launch(){
+    var r=Math.random(),bp=Math.min(0.6,0.15+t*0.004);
+    var type=r<bp?"broc":r<bp+0.08?"gold":r<bp+0.22?"duck":"roll",x=40+Math.random()*(W-80);
+    objs.push({x:x,y:H+30,vx:(W/2-x)*0.45+(Math.random()-0.5)*50,vy:-(600+Math.random()*130+Math.min(t*2,90)),type:type,r:26,rot:0,vr:(Math.random()-0.5)*6,cut:false});
+  }
+  function hit(o){
+    o.cut=true;
+    var col=o.type==="broc"?"#2f9e44":o.type==="gold"?"#f5b800":o.type==="duck"?"#ffd43b":"#ffffff";
+    for(var i=0;i<8;i++)bits.push({x:o.x,y:o.y,vx:(Math.random()-0.5)*320,vy:-Math.random()*260,c:col,a:1});
+    if(o.type==="broc"){lives-=1;shake=0.3;bleh();pops.push({x:o.x,y:o.y,txt:"YUCK!",a:1})}
+    else{
+      var v=o.type==="gold"?5:o.type==="duck"?2:1;score+=v;
+      if(v>1)ding();else fart();
+      pops.push({x:o.x,y:o.y,txt:"+"+v,a:1});
+    }
+  }
+  function slice(x1,y1,x2,y2){objs.forEach(function(o){if(!o.cut&&segDist(o.x,o.y,x1,y1,x2,y2)<o.r+6)hit(o)})}
+  return {
+    name:"slice",
+    tap:function(x,y){down=true;lx=x;ly=y;slice(x,y,x,y)},
+    pointer:function(x,y){
+      if(!down)return;
+      slice(lx,ly,x,y);trail.push({x:x,y:y,px:lx,py:ly,a:1});lx=x;ly=y;
+    },
+    up:function(){down=false},
+    update:function(dt){
+      t+=dt;shake=Math.max(0,shake-dt);spawn-=dt;
+      if(spawn<=0){
+        var n=1+Math.floor(Math.random()*(1+Math.min(2,t/25)));
+        for(var i=0;i<n;i++)launch();
+        spawn=Math.max(0.55,1.15-t*0.009);
+      }
+      objs.forEach(function(o){o.vy+=650*dt;o.x+=o.vx*dt;o.y+=o.vy*dt;o.rot+=o.vr*dt});
+      objs=objs.filter(function(o){return !o.cut&&!(o.y>H+60&&o.vy>0)});
+      bits.forEach(function(b){b.vy+=700*dt;b.x+=b.vx*dt;b.y+=b.vy*dt;b.a-=1.6*dt});bits=bits.filter(function(b){return b.a>0});
+      trail.forEach(function(p){p.a-=4*dt});trail=trail.filter(function(p){return p.a>0});
+      pops.forEach(function(p){p.y-=50*dt;p.a-=1.4*dt});pops=pops.filter(function(p){return p.a>0});
+      if(lives<=0)return {score:score,pts:score};
+      return null;
+    },
+    draw:function(c){
+      c.save();
+      if(shake>0)c.translate((Math.random()-0.5)*12,(Math.random()-0.5)*12);
+      c.fillStyle="#d9f7f2";c.fillRect(-20,-20,W+40,H+40);
+      objs.forEach(function(o){
+        c.save();c.translate(o.x,o.y);c.rotate(o.rot);
+        if(o.type==="broc")drawBroccoli(c,0,0,44);
+        else if(o.type==="duck")drawDuck(c,0,16,46);
+        else if(o.type==="gold"){c.fillStyle="#f5b800";ell(c,0,0,24,24);c.fillStyle="#fff2a8";ell(c,0,0,12,12);c.fillStyle="#c98f00";ell(c,0,0,5,5)}
+        else{c.scale(1.6,1.6);drawRoll(c,0,0)}
+        c.restore();
+      });
+      bits.forEach(function(b){c.globalAlpha=Math.max(0,b.a);c.fillStyle=b.c;c.fillRect(b.x-4,b.y-4,8,8)});
+      c.globalAlpha=1;
+      c.lineCap="round";
+      trail.forEach(function(p){c.strokeStyle="rgba(50,60,90,"+Math.max(0,p.a)+")";c.lineWidth=7;c.beginPath();c.moveTo(p.px,p.py);c.lineTo(p.x,p.y);c.stroke()});
+      c.font="800 24px 'Baloo 2',sans-serif";c.textAlign="center";
+      pops.forEach(function(p){c.globalAlpha=Math.max(0,p.a);c.fillStyle=p.txt==="YUCK!"?"#2f9e44":"#ff5fa2";c.fillText(p.txt,p.x,p.y)});
+      c.globalAlpha=1;
+      c.restore();
+      hud(c,"Slices: "+score,lives);
+      if(t<3)banner(c,"Swipe to slice!");
+    }
+  };
+}
+
+/* ---------- game 12: Poo Race ---------- */
+function RaceGame(){
+  var LX=[100,180,260],lane=1,x=180,KY=500,dist=0,t=0,lives=3,safe=0,rolls=0,rows=[],gapAcc=0,stripe=0,pops=[],score=0;
+  function speed(){return 230+Math.min(t*6,380)}
+  function addRow(){
+    var two=Math.random()<Math.min(0.7,Math.max(0,(t-15)/60)),lanes=[0,1,2].sort(function(){return Math.random()-0.5}),n=two?2:1,row={y:-60,items:[]};
+    for(var i=0;i<3;i++){
+      if(i<n)row.items.push({lane:lanes[i],kind:["plunger","duck","broc"][Math.floor(Math.random()*3)],hit:false});
+      else if(Math.random()<0.4)row.items.push({lane:lanes[i],kind:"roll",hit:false});
+    }
+    rows.push(row);
+  }
+  function steer(d){lane=Math.max(0,Math.min(2,lane+d));flapSnd()}
+  return {
+    name:"race",
+    pointer:noop,
+    tap:function(px2){steer(px2<W/2?-1:1)},
+    key:function(code){if(code==="ArrowLeft"){steer(-1);return true}if(code==="ArrowRight"){steer(1);return true}return false},
+    update:function(dt){
+      t+=dt;safe-=dt;
+      var sp=speed();dist+=sp*dt;stripe=(stripe+sp*dt)%80;
+      x+=(LX[lane]-x)*Math.min(1,dt*14);
+      gapAcc+=sp*dt;
+      if(gapAcc>=Math.max(200,340-t*2.4)){gapAcc=0;addRow()}
+      rows.forEach(function(r){
+        r.y+=sp*dt;
+        r.items.forEach(function(it){
+          if(it.hit||Math.abs(r.y-KY)>=30||Math.abs(LX[it.lane]-x)>=30)return;
+          if(it.kind==="roll"){it.hit=true;rolls++;ding();pops.push({x:x,y:KY-50,txt:"+3",a:1})}
+          else if(safe<=0){it.hit=true;lives-=1;safe=1.3;bleh();pops.push({x:x,y:KY-50,txt:"CRASH!",a:1})}
+        });
+      });
+      rows=rows.filter(function(r){return r.y<H+80});
+      score=Math.floor(dist/200)+rolls*3;
+      pops.forEach(function(p){p.y-=50*dt;p.a-=1.4*dt});pops=pops.filter(function(p){return p.a>0});
+      if(lives<=0)return {score:score,pts:score};
+      return null;
+    },
+    draw:function(c){
+      c.fillStyle="#7ccf6a";c.fillRect(0,0,W,H);
+      c.fillStyle="#6a6f7d";c.fillRect(40,0,280,H);
+      c.fillStyle="#e8e8ef";c.fillRect(34,0,6,H);c.fillRect(320,0,6,H);
+      c.fillStyle="#fff";
+      for(var y=-80+stripe;y<H;y+=80){c.fillRect(138,y,6,40);c.fillRect(218,y,6,40)}
+      rows.forEach(function(r){
+        r.items.forEach(function(it){
+          if(it.hit)return;
+          var ix=LX[it.lane];
+          if(it.kind==="roll")drawRoll(c,ix,r.y);
+          else if(it.kind==="plunger")drawPlunger(c,ix,r.y+22);
+          else if(it.kind==="duck")drawDuck(c,ix,r.y+16,44);
+          else drawBroccoli(c,ix,r.y,38);
+        });
+      });
+      if(!(safe>0&&Math.floor(t*12)%2)){
+        c.fillStyle="#e03131";c.fillRect(x-26,KY+6,52,24);
+        c.fillStyle="#222";ell(c,x-24,KY+30,8,8);ell(c,x+24,KY+30,8,8);
+        drawPoo(c,x,KY+12,48,"#94602f",gameAcc("racer","racer goggles"),t);
+      }
+      c.font="800 24px 'Baloo 2',sans-serif";c.textAlign="center";
+      pops.forEach(function(p){c.globalAlpha=Math.max(0,p.a);c.fillStyle=p.txt==="CRASH!"?"#e03131":"#ffd43b";c.fillText(p.txt,p.x,p.y)});
+      c.globalAlpha=1;
+      hud(c,"Score: "+score,lives);
+      if(t<2.5)banner(c,"Tap left or right!");
+    }
+  };
+}
+
 /* ---------- finale: Poo Disco ---------- */
 function DiscoGame(){
   var t=0,beat=-1,conf=[],NOTES=[262,330,392,330,294,349,440,349];
-  var spots=[[W/2-110,300],[W/2,300],[W/2+110,300],[W/2-110,410],[W/2,410],[W/2+110,410],[W/2-110,520],[W/2,520],[W/2+110,520]];
+  var spots=[];for(var sr=0;sr<3;sr++)for(var sk=0;sk<4;sk++)spots.push([45+sk*90,300+sr*110]);
   return {
     name:"disco",
     pointer:noop,
@@ -1274,7 +1670,7 @@ function DiscoGame(){
       POOS.forEach(function(q,i){
         var ph=t*7.85+i*1.3;
         c.save();c.translate(spots[i][0],spots[i][1]-Math.abs(Math.sin(ph))*26);c.rotate(Math.sin(ph)*0.22);
-        drawPoo(c,0,0,72,colOf(q),accOf(q),t);c.restore();
+        drawPoo(c,0,0,64,colOf(q),accOf(q),t);c.restore();
       });
       confDraw(c,conf);
       c.font="700 18px 'Baloo 2',sans-serif";c.fillStyle="#fff";c.fillText("Tap anywhere to toot!",W/2,196);
@@ -1283,7 +1679,7 @@ function DiscoGame(){
 }
 
 /* ---------- screens ---------- */
-function show(id){["who","home","game"].forEach(function(s){$(s).classList.toggle("on",s===id)})}
+function show(id){["who","home","game","shop","book"].forEach(function(s){$(s).classList.toggle("on",s===id)})}
 
 function buildWho(){
   var box=$("players");box.innerHTML="";
@@ -1292,18 +1688,23 @@ function buildWho(){
     var cv=document.createElement("canvas");cv.width=200;cv.height=220;cv.style.width="100px";cv.style.height="110px";
     drawPoo(cv.getContext("2d"),100,205,150,PCOL[n],"none",0);
     var name=document.createElement("b");name.textContent=n;
-    var pts=document.createElement("span");pts.textContent="⭐ "+store.profiles[n].pts+" party points";
+    var pts=document.createElement("span");pts.textContent="⭐ "+(store.profiles[n].pts-store.profiles[n].spent)+" party points";
     b.appendChild(cv);b.appendChild(name);b.appendChild(pts);
     b.addEventListener("click",function(){me=n;sel=POOS[0];fart();buildHome();show("home")});
     box.appendChild(b);
   });
 }
 
+var versus=null;
+function eligibleOpps(){
+  var idx=POOS.indexOf(sel);
+  return NAMES.filter(function(n){return n!==me&&store.profiles[n].hatched>idx});
+}
 function buildHome(){
   var p=prof();
   tickCare();
   $("hello").textContent="Hi, "+me+"!";
-  $("pts").textContent="⭐ "+p.pts;
+  $("pts").textContent="⭐ "+(p.pts-p.spent);
   var nextPoo=POOS[p.hatched],eggReady=!!nextPoo&&p.meter>=nextPoo.cost;
   if(nextPoo){
     $("barfill").style.width=Math.min(100,100*p.meter/nextPoo.cost)+"%";
@@ -1312,6 +1713,8 @@ function buildHome(){
     $("barfill").style.width="100%";
     $("next").textContent="You hatched every poo! The Poo Disco is open!";
   }
+  $("golden").style.display=p.golden>0?"":"none";
+  $("golden").textContent="✨🥚 Golden egg"+(p.golden>1?"s x"+p.golden:"")+"! Tap to hatch";
   $("disco").style.display=nextPoo?"none":"";
   var room=$("room");room.innerHTML="";
   POOS.forEach(function(q,idx){
@@ -1323,7 +1726,7 @@ function buildHome(){
     else drawPoo(g,100,208,has(a,"wings")?118:140,open?colOf(q):"#cbbfa3",a,0.1,!open);
     if(need)drawNeedBubble(g,NEEDICON[need]);
     var lab=document.createElement("small"),rk=open?rankOf(q.game,p.best[q.game]):0;
-    lab.textContent=open?(q.name+(rk?"\n"+"⭐".repeat(rk):"")):(isEgg?(ready?"Tap to hatch!":"Egg"):"Locked");
+    lab.textContent=open?(nameOf(q)+(rk?"\n"+"⭐".repeat(rk):"")):(isEgg?(ready?"Tap to hatch!":"Egg"):"Locked");
     b.appendChild(cv);b.appendChild(lab);
     b.addEventListener("click",function(){
       if(ready){audio();start("hatch");return}
@@ -1333,19 +1736,138 @@ function buildHome(){
     });
     room.appendChild(b);
   });
-  $("cname").textContent=sel.name;
+  var selOpen=POOS.indexOf(sel)<p.hatched;
+  $("cname").textContent=nameOf(sel);
   $("cblurb").textContent=sel.blurb;
   var best=p.best[sel.game];
   var rank=rankOf(sel.game,best),lv=TITLES[sel.game];
   $("cbest").textContent=best?("Best score: "+best+(rank?" · "+RANKS[rank]:"")):"";
   $("ctitle").textContent=!lv?"":rank<3?("Score "+lv[rank]+" to become a "+RANKS[rank+1]+"!"):"Top title earned!";
-  var cn=POOS.indexOf(sel)<p.hatched?careOf(sel.id).need:null;
+  var cn=selOpen?careOf(sel.id).need:null;
   $("cneed").textContent=cn?NEEDTXT[cn]:"";
   $("care").style.display=cn?"":"none";
   $("care").textContent=cn?NEEDBTN[cn]:"";
   $("play").textContent="Play "+sel.gname;
   $("play2").style.display=sel.game2?"":"none";
   $("play2").textContent=sel.g2name||"";
+  $("vs").style.display=(selOpen&&lv&&eligibleOpps().length)?"":"none";
+  $("renamebtn").style.display=selOpen?"":"none";
+}
+
+/* ---------- hat shop ---------- */
+var shopPoo=null,shopHat=null;
+function shopQ(){
+  var p=prof(),i;
+  for(i=0;i<POOS.length;i++)if(POOS[i].id===shopPoo&&i<p.hatched)return POOS[i];
+  return POOS.indexOf(sel)<p.hatched?sel:POOS[0];
+}
+function mkCanvas(){var cv=document.createElement("canvas");cv.width=200;cv.height=220;return cv}
+function buildShop(){
+  var p=prof(),q=shopQ();
+  $("shopstars").textContent="⭐ "+(p.pts-p.spent);
+  var strip=$("shoppoos");strip.innerHTML="";
+  POOS.forEach(function(o,i){
+    if(i>=p.hatched)return;
+    var b=document.createElement("button");b.className="spoo"+(o===q?" sel":"");
+    var cv=mkCanvas();drawPoo(cv.getContext("2d"),100,208,140,colOf(o),accOf(o),0.1);
+    b.appendChild(cv);
+    b.addEventListener("click",function(){shopPoo=o.id;shopHat=null;buildShop()});
+    strip.appendChild(b);
+  });
+  var pv=$("shopprev"),g=pv.getContext("2d");g.clearRect(0,0,pv.width,pv.height);
+  var tryAcc=shopHat?accWith(q,hatById(shopHat).tok):accOf(q);
+  drawPoo(g,120,258,170,colOf(q),tryAcc,0.1);
+  var list=[{id:"",name:"Original",tok:null,price:0}].concat(HATSHOP).concat(RAREHATS);
+  var grid=$("hatgrid");grid.innerHTML="";
+  list.forEach(function(h){
+    var owned=!h.id||p.hats.indexOf(h.id)>=0,locked=h.rare&&!owned,wearing=(p.wear[q.id]||"")===h.id;
+    var b=document.createElement("button");
+    b.className="hat"+(shopHat===h.id&&!owned?" sel":"")+(wearing?" on":"")+(locked?" locked":"");
+    var cv=mkCanvas(),cg=cv.getContext("2d");
+    if(locked)drawPoo(cg,100,208,130,"#cbbfa3","none",0.1,true);
+    else drawPoo(cg,100,208,130,colOf(q),h.tok?accWith(q,h.tok):baseAcc(q),0.1);
+    b.appendChild(cv);
+    var lab=document.createElement("span");
+    lab.textContent=h.name+"\n"+(locked?"✨ Golden egg":wearing?"✓ Wearing":owned?"Owned":h.price+" ⭐");
+    b.appendChild(lab);
+    b.addEventListener("click",function(){
+      if(locked){bleh();shopHat=null;buildShop();return}
+      if(owned){p.wear[q.id]=wearing&&h.id?"":h.id;shopHat=null;save();fart();buildShop();return}
+      shopHat=h.id;buildShop();
+    });
+    grid.appendChild(b);
+  });
+  var bb=$("shopbuy");
+  if(shopHat){
+    var sh=hatById(shopHat),need=sh.price-(p.pts-p.spent);
+    bb.style.display="";bb.disabled=need>0;
+    bb.textContent=need>0?"Need "+need+" more ⭐ for the "+sh.name:"Buy the "+sh.name+" for "+sh.price+" ⭐";
+  }else bb.style.display="none";
+}
+
+/* ---------- sticker book ---------- */
+var SPECIALS=[
+  {icon:"🎩",name:"First hat",ok:function(p){return p.hats.length>=1}},
+  {icon:"👒",name:"Hat collector",ok:function(p){return p.hats.length>=5}},
+  {icon:"✨",name:"Golden egg",ok:function(p){return p.goldHatched>=1}},
+  {icon:"🧼",name:"Caring pooper",ok:function(p){return p.cared>=5}},
+  {icon:"💖",name:"Poo nurse",ok:function(p){return p.cared>=25}},
+  {icon:"🏆",name:"Champion",ok:function(p){return p.wins>=1}},
+  {icon:"👑",name:"Rematch king",ok:function(p){return p.wins>=5}},
+  {icon:"✏️",name:"Name giver",ok:function(p){return Object.keys(p.names).length>=1}},
+  {icon:"🪩",name:"Disco time",ok:function(p){return p.hatched>=POOS.length}},
+  {icon:"⭐",name:"500 stars",ok:function(p){return p.pts>=500}}
+];
+function el(tag,cls,txt){var e=document.createElement(tag);if(cls)e.className=cls;if(txt!=null)e.textContent=txt;return e}
+function buildBook(){
+  var p=prof(),body=$("bookbody"),got=0,total=0;
+  body.innerHTML="";
+  body.appendChild(el("h3",null,"My poos"));
+  var g1=el("div","sgrid");
+  POOS.forEach(function(q,i){
+    var open=i<p.hatched;total++;if(open)got++;
+    var d=el("div","stk"+(open?"":" off")),cv=mkCanvas();
+    drawPoo(cv.getContext("2d"),100,208,140,open?colOf(q):"#cbbfa3",open?accOf(q):"none",0.1,!open);
+    d.appendChild(cv);d.appendChild(el("div",null,open?nameOf(q):"???"));g1.appendChild(d);
+  });
+  body.appendChild(g1);
+  body.appendChild(el("h3",null,"Titles"));
+  POOS.forEach(function(q){
+    if(!TITLES[q.game])return;
+    var rk=rankOf(q.game,p.best[q.game]);total+=3;got+=rk;
+    var r=el("div","trow");r.appendChild(el("span",null,q.gname));
+    r.appendChild(el("span",null,"⭐".repeat(rk)+"☆".repeat(3-rk)));
+    body.appendChild(r);
+  });
+  body.appendChild(el("h3",null,"Special stickers"));
+  var g2=el("div","sgrid");
+  SPECIALS.forEach(function(sp){
+    var ok=sp.ok(p);total++;if(ok)got++;
+    var d=el("div","stk"+(ok?"":" off"));d.appendChild(el("div","em",sp.icon));d.appendChild(el("div",null,sp.name));g2.appendChild(d);
+  });
+  body.appendChild(g2);
+  $("bookcount").textContent=got+" / "+total+" stickers";
+}
+
+/* ---------- 2-player: take turns on the same game ---------- */
+function startVersus(opp){
+  versus={kind:sel.game,players:[me,opp],turn:0,scores:[null,null],orig:me,sel:sel,next:null};
+  versusReady();
+}
+function versusReady(){
+  me=versus.players[versus.turn];
+  stop();show("game");
+  $("again").style.display="";$("again").textContent="Go!";$("back").textContent="Cancel";
+  $("otitle").textContent=me+"'s turn!";$("oscore").textContent="";
+  $("opts").textContent="Pass the device to "+me+" ("+(versus.turn+1)+" of 2)";
+  $("hatch").textContent="";
+  $("over").classList.add("on");
+  versus.next=function(){start(versus.kind)};
+}
+function endVersus(){
+  me=versus.orig;sel=versus.sel;versus=null;
+  $("again").textContent="Play again";$("back").textContent="Back to the party";
+  buildHome();show("home");
 }
 
 /* ---------- game runner ---------- */
@@ -1360,7 +1882,7 @@ function fit(){
 window.addEventListener("resize",fit);
 function px(e){var r=cv.getBoundingClientRect();return (e.clientX-r.left)*W/r.width}
 function py(e){var r=cv.getBoundingClientRect();return (e.clientY-r.top)*H/r.height}
-var GAMES={catch:CatchGame,flap:FlapGame,whack:WhackGame,run:RunGame,dress:DressGame,disco:DiscoGame,hop:HopGame,match:MatchGame,care:CareGame,hatch:HatchGame,says:SaysGame,tower:TowerGame,bounce:BounceGame};
+var GAMES={catch:CatchGame,flap:FlapGame,whack:WhackGame,run:RunGame,dress:DressGame,disco:DiscoGame,hop:HopGame,match:MatchGame,care:CareGame,hatch:HatchGame,says:SaysGame,tower:TowerGame,bounce:BounceGame,pairs:PairsGame,slice:SliceGame,race:RaceGame};
 cv.addEventListener("pointerdown",function(e){e.preventDefault();audio();if(game&&running)game.tap(px(e),py(e))});
 cv.addEventListener("pointerup",function(e){if(game&&running&&game.up)game.up(px(e),py(e))});
 cv.addEventListener("pointermove",function(e){if(game&&running)game.pointer(px(e),py(e))});
@@ -1386,7 +1908,17 @@ function stop(){running=false;cancelAnimationFrame(raf)}
 function finish(res){
   stop();
   var p=prof();
-  $("again").style.display=(res.hatchPoo||res.careId)?"none":"";
+  if(!versus){$("again").textContent="Play again";$("back").textContent="Back to the party"}
+  $("again").style.display=(res.hatchPoo||res.careId||res.golden)?"none":"";
+  if(res.golden){
+    p.golden=Math.max(0,(p.golden||0)-1);p.goldHatched=(p.goldHatched||0)+1;
+    if(res.prize){p.hats.push(res.prize);p.wear[sel.id]=res.prize}else p.pts+=25;
+    save();
+    $("otitle").textContent=res.title;$("oscore").textContent="✨";
+    $("opts").textContent=res.prize?"Wearing it now! Change hats in the Hat Shop.":"";$("hatch").textContent="";
+    $("over").classList.add("on");
+    return;
+  }
   if(res.hatchPoo){
     var egg=POOS[p.hatched];p.hatched+=1;p.meter=0;sel=egg;
     careOf(egg.id).next=Date.now()+90000+Math.random()*90000;
@@ -1396,12 +1928,14 @@ function finish(res){
     $("over").classList.add("on");
     return;
   }
-  if(res.careId){var cr=p.care[res.careId];if(cr){cr.need=null;cr.next=Date.now()+300000+Math.random()*300000}}
+  if(res.careId){var cr=p.care[res.careId];if(cr){cr.need=null;cr.next=Date.now()+300000+Math.random()*300000}p.cared=(p.cared||0)+1}
   p.pts+=res.pts;
   var newBest=res.score!=null&&res.score>(p.best[game.name]||0);
   var rank0=rankOf(game.name,p.best[game.name]);
   if(newBest)p.best[game.name]=res.score;
   var rank1=rankOf(game.name,p.best[game.name]);
+  var goldMsg=false;
+  if(rank1>=3&&rank0<3){p.golden=(p.golden||0)+1;goldMsg=true}
   /* party points fill the egg; a full egg waits to be tapped, so only one poo hatches at a time */
   var ready=false,next=POOS[p.hatched];
   if(next){var before=p.meter;p.meter=Math.min(next.cost,p.meter+res.pts);if(before<next.cost&&p.meter>=next.cost)ready=true}
@@ -1409,18 +1943,72 @@ function finish(res){
   $("otitle").textContent=res.title||(rank1>rank0?"New title: "+RANKS[rank1]+"!":newBest&&res.score>0?"New best score!":"Party pooper!");
   $("oscore").textContent=res.score==null?"":res.score;
   $("opts").textContent="You earned ⭐ "+res.pts+" party points";
-  $("hatch").textContent=ready?"🥚 Your egg is ready to hatch!":"";
-  if(ready||rank1>rank0)tada();
+  $("hatch").textContent=(ready?"🥚 Your egg is ready to hatch!":"")+(goldMsg?(ready?"\n":"")+"✨ A GOLDEN EGG appeared!":"");
+  if(ready||goldMsg||rank1>rank0)tada();
+  if(versus&&res.score!=null){
+    versus.scores[versus.turn]=res.score;
+    $("otitle").textContent=me+" scored "+res.score+"!";
+    if(versus.turn===0){
+      $("again").textContent="Next: "+versus.players[1]+"'s turn";$("again").style.display="";$("back").textContent="Cancel";
+      versus.next=function(){versus.turn=1;versusReady()};
+    }else{
+      var a=versus.scores[0],b=versus.scores[1],msg;
+      if(a===b)msg="It's a tie! "+a+" - "+b;
+      else{
+        var wi=a>b?0:1,w=versus.players[wi],wp=store.profiles[w];
+        wp.pts+=5;wp.wins=(wp.wins||0)+1;save();
+        msg=w+" wins! "+versus.scores[wi]+" - "+versus.scores[1-wi];
+      }
+      $("otitle").textContent=msg;$("oscore").textContent="🏆";
+      $("again").textContent="Rematch";$("again").style.display="";$("back").textContent="Back to the party";
+      versus.next=function(){versus.turn=0;versus.scores=[null,null];versusReady()};
+      tada();
+    }
+  }
   $("over").classList.add("on");
 }
 
 $("play").addEventListener("click",function(){audio();start(sel.game)});
 $("play2").addEventListener("click",function(){audio();if(sel.game2)start(sel.game2)});
+$("golden").addEventListener("click",function(){audio();pendingGolden=true;start("hatch")});
+$("shopbtn").addEventListener("click",function(){shopPoo=null;shopHat=null;buildShop();show("shop")});
+$("shopback").addEventListener("click",function(){buildHome();show("home")});
+$("shopbuy").addEventListener("click",function(){
+  var p=prof(),h=shopHat&&hatById(shopHat),q=shopQ();
+  if(!h||p.pts-p.spent<h.price)return;
+  p.spent+=h.price;p.hats.push(h.id);p.wear[q.id]=h.id;shopHat=null;save();tada();buildShop();
+});
+$("bookbtn").addEventListener("click",function(){buildBook();show("book")});
+$("bookback").addEventListener("click",function(){buildHome();show("home")});
+$("renamebtn").addEventListener("click",function(){
+  $("rinput").value=nameOf(sel);$("rename").classList.add("on");
+  setTimeout(function(){try{$("rinput").focus();$("rinput").select()}catch(e){}},60);
+});
+function saveName(){
+  var v=$("rinput").value.trim().slice(0,14),nm=prof().names;
+  if(v&&v!==sel.name)nm[sel.id]=v;else delete nm[sel.id];
+  save();$("rename").classList.remove("on");buildHome();
+}
+$("rsave").addEventListener("click",saveName);
+$("rinput").addEventListener("keydown",function(e){if(e.key==="Enter")saveName()});
+$("rcancel").addEventListener("click",function(){$("rename").classList.remove("on")});
+$("vs").addEventListener("click",function(){
+  var opps=eligibleOpps();if(!opps.length)return;
+  if(opps.length===1){startVersus(opps[0]);return}
+  var box=$("vsbtns");box.innerHTML="";
+  opps.forEach(function(n){
+    var b=el("button","btn",n);
+    b.addEventListener("click",function(){$("vsbox").classList.remove("on");startVersus(n)});
+    box.appendChild(b);
+  });
+  $("vsbox").classList.add("on");
+});
+$("vscancel").addEventListener("click",function(){$("vsbox").classList.remove("on")});
 $("care").addEventListener("click",function(){audio();start("care")});
 $("disco").addEventListener("click",function(){audio();start("disco")});
-$("again").addEventListener("click",function(){start(game.name)});
-$("back").addEventListener("click",function(){buildHome();show("home")});
-$("quit").addEventListener("click",function(){stop();buildHome();show("home")});
+$("again").addEventListener("click",function(){if(versus){versus.next();return}start(game.name)});
+$("back").addEventListener("click",function(){if(versus){endVersus();return}buildHome();show("home")});
+$("quit").addEventListener("click",function(){stop();if(versus){endVersus();return}buildHome();show("home")});
 $("switch").addEventListener("click",function(){buildWho();show("who")});
 $("mute").addEventListener("click",function(){muted=!muted;this.textContent="Sound: "+(muted?"off":"on");if(!muted)fart()});
 
@@ -1434,7 +2022,7 @@ resetBtn.addEventListener("pointerdown",function(e){
   clearTimeout(holdT);
   holdT=setTimeout(function(){
     holdT=0;var p=prof();
-    p.pts=0;p.best={};p.hatched=1;p.meter=0;p.care={};p.outfit={hat:0,eyes:0,extra:0,color:0};
+    p.pts=0;p.best={};p.hatched=1;p.meter=0;p.care={};p.spent=0;p.hats=[];p.wear={};p.names={};p.golden=0;p.goldHatched=0;p.cared=0;p.wins=0;p.outfit={hat:0,eyes:0,extra:0,color:0};
     save();sel=POOS[0];buildHome();bleh();resetLabel(me+" starts fresh!");
   },3000);
 });

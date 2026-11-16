@@ -26,8 +26,11 @@ A silly collect-the-poos game for Farah, Mia and Gemma. Each poo has its own min
 | Poozer | Poo Bricks (breakout) | 290 |
 | Plumber Poo | Poo Pipes (rotate-the-pipes puzzle) | 310 |
 | Musketeer Poo | Poo Duel (sword timing) | 330 |
+| Fairy Poo | Poo Path (steer down a winding path) | 350 |
+| Clown Poo | Poo Juggle (keep balls in the air) | 370 |
+| Unicorn Poo | Rainbow Blast (shoot the grumpy clouds) | 390 |
 
-Party points fill an egg. When it is full she taps it to hatch (7 taps) and the meter resets, so only one poo hatches at a time. Hatched poos sometimes ask for a wipe, a snack or a nap; ignoring them has no penalty and helping earns 4 party points. Once all seventeen are hatched, the Poo Disco opens.
+Party points fill an egg. When it is full she taps it to hatch (7 taps) and the meter resets, so only one poo hatches at a time. Hatched poos sometimes ask for a wipe, a snack or a nap; ignoring them has no penalty and helping earns 4 party points. Once all twenty are hatched, the Poo Disco opens.
 
 Each scored game has three titles (Little Stinker, Super Pooper, Poo Master); the score levels are in `TITLES`.
 

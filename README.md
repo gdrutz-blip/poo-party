@@ -47,3 +47,4 @@ To add a poo: add an entry to `POOS`, write a game object with `tap`, `pointer`,
 - **Play vs. a friend:** two players take turns on the same game; the winner gets 5 bonus stars.
 
 - **Mystery eggs:** every player hatches the poos in their own random order (the first is always Sir Plops-a-Lot). Costs go up by hatch number, and unhatched poos are hidden.
+- **Egg price cap:** eggs get a bit pricier for the first few poos, then stay at 150 party points each so the collection never turns into a grind.

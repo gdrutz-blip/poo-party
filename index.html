@@ -264,7 +264,7 @@ var POOS=[
   {id:"pepper",name:"Poo-peroni",color:"#a0522d",acc:"pizza",cost:430,game:"pizza",gname:"Pizza Spin",
    blurb:"Tap to throw pepperoni onto the spinning pizza. Don't hit the other toppings!"}
 ];
-var COSTS=POOS.map(function(q){return q.cost}),ORIG=POOS.map(function(q){return q.id});
+var COSTS=POOS.map(function(q){return Math.min(q.cost,150)}),ORIG=POOS.map(function(q){return q.id});
 var HATS=["none","hat","party","crown","bow"],HATN=["No hat","Top hat","Party hat","Crown","Bow"];
 var EYES=["none","shades","round"],EYEN=["No glasses","Cool shades","Round glasses"];
 var EXTRAS=["none","stache","wings","gold"],EXN=["Nothing extra","Moustache","Wings","Sparkles"];

@@ -2292,7 +2292,42 @@ function DiscoGame(){
 }
 
 /* ---------- screens ---------- */
-function show(id){["who","home","game","shop","book"].forEach(function(s){$(s).classList.toggle("on",s===id)})}
+/* ---------- whistle jingle on the menu screens ---------- */
+var JT=null,JM=null,JW=false;
+var TUNE=[[784,.22],[659,.22],[784,.22],[880,.45],[784,.22],[659,.22],[523,.45],[587,.22],[659,.22],[587,.22],[523,.7],[0,.2],[392,.18],[523,.18],[659,.18],[784,.5],[1047,.2],[880,.2],[1047,.9]];
+function menuOn(){return !$("game").classList.contains("on")}
+function jingleStop(){
+  JW=false;clearTimeout(JT);
+  if(JM){try{JM.gain.cancelScheduledValues(0);JM.gain.value=0}catch(e){}JM=null}
+}
+function jingleStart(){
+  if(JW||muted||!menuOn())return;
+  var a=audio();if(!a||a.state!=="running")return;
+  JW=true;
+  try{
+    var m=a.createGain();m.gain.value=0.08;m.connect(a.destination);JM=m;
+    var at=a.currentTime+0.15,total=0;
+    TUNE.forEach(function(n){
+      var f=n[0],d=n[1];
+      if(f){
+        var o=a.createOscillator(),g=a.createGain(),l=a.createOscillator(),lg=a.createGain();
+        o.type="sine";o.frequency.value=f;l.frequency.value=6;lg.gain.value=f*0.012;l.connect(lg);lg.connect(o.frequency);
+        g.gain.setValueAtTime(0.0001,at);g.gain.linearRampToValueAtTime(1,at+0.04);g.gain.setValueAtTime(1,at+d*0.8);g.gain.linearRampToValueAtTime(0.0001,at+d);
+        o.connect(g);g.connect(m);o.start(at);o.stop(at+d+0.02);l.start(at);l.stop(at+d+0.02);
+      }
+      at+=d;total+=d;
+    });
+    JT=setTimeout(function(){JW=false;jingleStart()},(total+6)*1000);
+  }catch(e){JW=false}
+}
+function show(id){
+  ["who","home","game","shop","book"].forEach(function(s){$(s).classList.toggle("on",s===id)});
+  if(id==="game")jingleStop();else jingleStart();
+}
+document.addEventListener("pointerdown",function(){
+  var a=audio();if(!a)return;
+  if(a.state==="running")jingleStart();else if(a.resume)a.resume().then(jingleStart).catch(function(){});
+});
 
 function buildWho(){
   var box=$("players");box.innerHTML="";
@@ -2625,7 +2660,7 @@ $("again").addEventListener("click",function(){if(versus){versus.next();return}s
 $("back").addEventListener("click",function(){if(versus){endVersus();return}buildHome();show("home")});
 $("quit").addEventListener("click",function(){stop();if(versus){endVersus();return}buildHome();show("home")});
 $("switch").addEventListener("click",function(){buildWho();show("who")});
-$("mute").addEventListener("click",function(){muted=!muted;this.textContent="Sound: "+(muted?"off":"on");if(!muted)fart()});
+$("mute").addEventListener("click",function(){muted=!muted;this.textContent="Sound: "+(muted?"off":"on");if(muted)jingleStop();else fart()});
 
 /* grown-up reset: hold the button for 3 seconds to wipe the current player's progress */
 var resetBtn=$("reset"),holdT=0,labelT=0;

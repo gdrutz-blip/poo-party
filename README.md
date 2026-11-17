@@ -52,4 +52,4 @@ To add a poo: add an entry to `POOS`, write a game object with `tap`, `pointer`,
 
 - **Mystery eggs:** every player hatches the poos in their own random order (the first is always Sir Plops-a-Lot). Costs go up by hatch number, and unhatched poos are hidden.
 - **Egg price cap:** eggs get a bit pricier for the first few poos, then stay at 150 party points each so the collection never turns into a grind.
-- **Menu jingle:** a little whistle tune plays on the menu screens (after the first tap) and stops during games. The Sound button turns it off.
+- **Menu jingle:** the family's own recorded poo party jingle (embedded in index.html) plays on the menu screens, with a synth whistle as backup; it plays on the menu screens (after the first tap) and stops during games. The Sound button turns it off.

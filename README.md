@@ -54,3 +54,4 @@ To add a poo: add an entry to `POOS`, write a game object with `tap`, `pointer`,
 - **Egg price cap:** eggs get a bit pricier for the first few poos, then stay at 150 party points each so the collection never turns into a grind.
 - **Menu jingle:** the family's own recorded poo party jingle (embedded in index.html) plays once when the game is opened (after the first tap), with a synth whistle as backup; it plays on the menu screens (after the first tap) and stops during games. The Sound button turns it off.
 - **Players:** Farrah, Mia, Gemma, Mommy and Daddy each have their own save, hatching order, hats and stickers, and can play each other in 2-player mode.
+- **Expert mode (Daddy only):** a toggle on the home screen runs all the scored games at 2x speed. It is switched off in 2-player games so it stays fair.

@@ -133,6 +133,7 @@
     <button class="btn alt" id="play2" style="display:none"></button>
     <button class="btn alt" id="vs" style="display:none">👫 Play vs. a friend</button>
     <button class="btn alt" id="disco" style="display:none">🪩 Poo Disco!</button>
+    <button class="btn alt small" id="expert" style="display:none">⚡ Expert mode: off</button>
     <button class="btn alt small" id="renamebtn">✏️ Rename</button>
   </div>
   <div class="foot">
@@ -202,7 +203,7 @@ var NAMES=["Farrah","Mia","Gemma","Mommy","Daddy"],OLDNAME={Farrah:"Farah",Mommy
 var PCOL={Farrah:"#8b5cf6",Mia:"#19b5a5",Gemma:"#ff5fa2",Mommy:"#f08c00",Daddy:"#339af0"};
 var store={profiles:{}};
 var OLD_NEED=[0,25,60,110];
-NAMES.forEach(function(n){store.profiles[n]={pts:0,best:{},hatched:1,meter:0,order:null,care:{},spent:0,hats:[],wear:{},names:{},golden:0,goldHatched:0,cared:0,wins:0,outfit:{hat:0,eyes:0,extra:0,color:0}}});
+NAMES.forEach(function(n){store.profiles[n]={pts:0,best:{},hatched:1,meter:0,order:null,expert:false,care:{},spent:0,hats:[],wear:{},names:{},golden:0,goldHatched:0,cared:0,wins:0,outfit:{hat:0,eyes:0,extra:0,color:0}}});
 try{
   var s=JSON.parse(localStorage.getItem(KEY));
   if(s&&s.profiles)NAMES.forEach(function(n){
@@ -212,7 +213,7 @@ try{
     else{p.hatched=OLD_NEED.filter(function(v){return p.pts>=v}).length}
     if(o.care)p.care=o.care;
     p.spent=o.spent||0;p.hats=o.hats||[];p.wear=o.wear||{};p.names=o.names||{};
-    p.order=o.order||null;p.golden=o.golden||0;p.goldHatched=o.goldHatched||0;p.cared=o.cared||0;p.wins=o.wins||0;
+    p.order=o.order||null;p.expert=!!o.expert;p.golden=o.golden||0;p.goldHatched=o.goldHatched||0;p.cared=o.cared||0;p.wins=o.wins||0;
     if(o.outfit)["hat","eyes","extra","color"].forEach(function(k){p.outfit[k]=o.outfit[k]||0});
   });
 }catch(e){}
@@ -2675,6 +2676,8 @@ function buildHome(){
   $("play2").textContent=sel.g2name||"";
   $("vs").style.display=(selOpen&&lv&&eligibleOpps().length)?"":"none";
   $("renamebtn").style.display=selOpen?"":"none";
+  $("expert").style.display=me==="Daddy"?"":"none";
+  $("expert").textContent="⚡ Expert mode: "+(p.expert?"ON (2x speed)":"off");
 }
 
 /* ---------- hat shop ---------- */
@@ -2815,15 +2818,20 @@ window.addEventListener("keydown",function(e){
   if(e.code==="Space"||e.code==="ArrowUp"){e.preventDefault();game.tap(W/2)}
 });
 
+var gspeed=1;
 function start(kind){
   game=(GAMES[kind]||CatchGame)();
+  gspeed=(me==="Daddy"&&prof().expert&&!versus&&TITLES[game.name])?2:1;
   $("over").classList.remove("on");show("game");fit();
   running=true;last=0;cancelAnimationFrame(raf);raf=requestAnimationFrame(loop);
 }
 function loop(ts){
   if(!running)return;
   var dt=last?Math.min(0.033,(ts-last)/1000):0;last=ts;
-  var res=game.update(dt);game.draw(ctx);
+  var res=game.update(dt);
+  if(!res&&gspeed>1)res=game.update(dt);
+  game.draw(ctx);
+  if(gspeed>1){ctx.font="800 16px 'Baloo 2',sans-serif";ctx.textAlign="right";ctx.fillStyle="#ff5fa2";ctx.fillText("⚡ 2x",W-10,H-8)}
   if(res){finish(res);return}
   raf=requestAnimationFrame(loop);
 }
@@ -2912,6 +2920,7 @@ function saveName(){
   if(v&&v!==sel.name)nm[sel.id]=v;else delete nm[sel.id];
   save();$("rename").classList.remove("on");buildHome();
 }
+$("expert").addEventListener("click",function(){var p=prof();p.expert=!p.expert;save();buildHome()});
 $("rsave").addEventListener("click",saveName);
 $("rinput").addEventListener("keydown",function(e){if(e.key==="Enter")saveName()});
 $("rcancel").addEventListener("click",function(){$("rename").classList.remove("on")});

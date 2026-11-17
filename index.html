@@ -36,7 +36,8 @@
   .btn.small{font-size:16px;padding:7px 16px;box-shadow:0 3px 0 #e3d3ad}
 
   /* who's playing */
-  #who .players{display:flex;gap:18px;margin-top:22px;flex-wrap:wrap;justify-content:center}
+  #who .sub{margin:4px 0 14px;font-size:19px;font-weight:700;font-style:italic;color:var(--purple);text-align:center}
+  .players{display:flex;gap:18px;margin-top:22px;flex-wrap:wrap;justify-content:center}
   .player{width:140px;padding:14px 10px 16px;border-radius:26px;background:var(--card);
           box-shadow:0 7px 0 #e3d3ad;display:flex;flex-direction:column;align-items:center;transition:transform .08s}
   .player:active{transform:translateY(5px);box-shadow:0 2px 0 #e3d3ad}
@@ -107,6 +108,7 @@
 
 <section id="who" class="screen on">
   <h1>Poo Party</h1>
+  <p class="sub">Filled with so much joy and cheer</p>
   <h2>Who's playing?</h2>
   <div class="players" id="players"></div>
 </section>

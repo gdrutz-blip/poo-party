@@ -264,7 +264,11 @@ var POOS=[
   {id:"chef",name:"Chef Poo-la-la",color:"#97612f",acc:"chef spoon",cost:410,game:"kitchen",gname:"Poo Kitchen",
    blurb:"Tap the ingredients in the same order as the ticket. Hurry, the customers are hungry!"},
   {id:"pepper",name:"Poo-peroni",color:"#a0522d",acc:"pizza",cost:430,game:"pizza",gname:"Pizza Spin",
-   blurb:"Tap to throw pepperoni onto the spinning pizza. Don't hit the other toppings!"}
+   blurb:"Tap to throw pepperoni onto the spinning pizza. Don't hit the other toppings!"},
+  {id:"doctor",name:"Doctor Plopsy",color:"#9b6a3d",acc:"doctor stetho",cost:450,game:"clinic",gname:"Poo Clinic",
+   blurb:"Sick poos go to bed (tap right). Healthy poos go home (tap left). Be quick!"},
+  {id:"burger",name:"Big Poo-ger",color:"#a56a35",acc:"burger",cost:470,game:"grill",gname:"Poo Grill",
+   blurb:"Tap each patty to flip it when the ring is in the green. Don't let them burn!"}
 ];
 var COSTS=POOS.map(function(q){return Math.min(q.cost,150)}),ORIG=POOS.map(function(q){return q.id});
 var HATS=["none","hat","party","crown","bow"],HATN=["No hat","Top hat","Party hat","Crown","Bow"];
@@ -273,7 +277,7 @@ var EXTRAS=["none","stache","wings","gold"],EXN=["Nothing extra","Moustache","Wi
 var COLORS=["#8a5a2b","#f5b800","#ff7eb6","#19b5a5","#8b5cf6"],COLN=["Classic brown","Golden","Pink","Teal","Purple"];
 function has(a,k){return (" "+a+" ").indexOf(" "+k+" ")>=0}
 function outfitAcc(o){return HATS[o.hat]+" "+EYES[o.eyes]+" "+EXTRAS[o.extra]}
-var HEADTOK=["hat","party","crown","bow","band","phones","hardhat","helmet","cap","chef","cowboy","wizard","santa","pirate","unicorn","gcrown","rainbow","halo","flame","ninja","racer","swoop","sparklehat","plumber","musket","cone","pizza"];
+var HEADTOK=["hat","party","crown","bow","band","phones","hardhat","helmet","cap","chef","cowboy","wizard","santa","pirate","unicorn","gcrown","rainbow","halo","flame","ninja","racer","swoop","sparklehat","plumber","musket","cone","pizza","doctor","burger"];
 var HATSHOP=[
   {id:"party",tok:"party",name:"Party Hat",price:15},
   {id:"cap",tok:"cap",name:"Baseball Cap",price:20},
@@ -327,7 +331,7 @@ function tickCare(){
   return changed;
 }
 /* score needed in each game for each title */
-var TITLES={"catch":[30,70,130],flap:[5,15,40],whack:[8,15,25],run:[10,30,50],hop:[15,40,80],match:[5,10,20],says:[4,8,12],tower:[8,18,30],bounce:[10,25,50],pairs:[9,27,47],slice:[15,40,80],race:[25,60,120],beat:[20,50,100],spot:[20,45,80],bricks:[20,50,90],pipes:[4,9,15],duel:[15,40,80],kitchen:[8,18,30],pizza:[15,40,80],path:[20,50,100],juggle:[15,40,80],blast:[15,40,80]};
+var TITLES={"catch":[30,70,130],flap:[5,15,40],whack:[8,15,25],run:[10,30,50],hop:[15,40,80],match:[5,10,20],says:[4,8,12],tower:[8,18,30],bounce:[10,25,50],pairs:[9,27,47],slice:[15,40,80],race:[25,60,120],beat:[20,50,100],spot:[20,45,80],bricks:[20,50,90],pipes:[4,9,15],duel:[15,40,80],kitchen:[8,18,30],pizza:[15,40,80],clinic:[20,50,100],grill:[10,25,45],path:[20,50,100],juggle:[15,40,80],blast:[15,40,80]};
 var RANKS=["","Little Stinker","Super Pooper","Poo Master"];
 function rankOf(g,best){var a=TITLES[g];if(!a)return 0;return a.filter(function(v){return (best||0)>=v}).length}
 var me=null, sel=POOS[0];
@@ -636,6 +640,19 @@ function drawPoo(c,x,y,s,color,acc,t,noFace){
       c.strokeStyle="#c58b4a";c.lineWidth=Math.max(3,0.05*s);c.lineCap="round";
       c.beginPath();c.moveTo(x-0.42*s,y-0.04*s);c.lineTo(x-0.58*s,y-0.5*s);c.stroke();c.lineCap="butt";
       c.fillStyle="#c58b4a";ell(c,x-0.6*s,y-0.56*s,0.08*s,0.11*s);
+    }
+    if(has(acc,"doctor")){
+      c.fillStyle="#e9eef5";c.fillRect(x-0.26*s,y-0.82*s,0.52*s,0.045*s);
+      c.fillStyle="#cfd8e3";ell(c,x+0.1*s,y-0.82*s,0.1*s,0.1*s);c.fillStyle="#6b7686";ell(c,x+0.1*s,y-0.82*s,0.04*s,0.04*s);
+    }
+    if(has(acc,"stetho")){
+      c.strokeStyle="#333";c.lineWidth=Math.max(2,0.03*s);c.beginPath();c.arc(x,y-0.3*s,0.27*s,Math.PI*0.12,Math.PI*0.88);c.stroke();
+      c.fillStyle="#cfd8e3";ell(c,x+0.2*s,y-0.08*s,0.05*s,0.05*s);
+    }
+    if(has(acc,"burger")){
+      c.fillStyle="#d9954a";c.beginPath();c.arc(x,y-0.74*s,0.32*s,Math.PI,2*Math.PI);c.fill();
+      c.fillStyle="#fff3d6";[[-0.15,-0.9],[0,-0.98],[0.14,-0.88],[-0.05,-0.84]].forEach(function(d){ell(c,x+d[0]*s,y+d[1]*s,0.025*s,0.015*s)});
+      c.fillStyle="#49b34f";ell(c,x,y-0.74*s,0.34*s,0.045*s);
     }
     if(has(acc,"nerd")){
       c.strokeStyle="#111";c.lineWidth=Math.max(2.5,0.04*s);c.fillStyle="rgba(255,255,255,0.35)";
@@ -2251,6 +2268,126 @@ function PizzaGame(){
   };
 }
 
+/* ---------- game 23: Poo Clinic ---------- */
+function ClinicGame(){
+  var t=0,score=0,lives=3,cur=null,fly=null,spawn=0.3,pops=[],shake=0;
+  function limit(){return Math.max(1.3,3.2-score*0.05)}
+  function neu(){
+    var sick=Math.random()<0.5,sp=[],i;
+    if(sick)for(i=0;i<5;i++)sp.push([(Math.random()-0.5)*0.6,-0.12-Math.random()*0.38]);
+    cur={sick:sick,age:0,spots:sp,tint:sick&&score<15,star:!sick&&score>=10&&Math.random()<0.5};
+  }
+  function dec(sick,x){
+    var correct=(x>=W/2)===sick;
+    fly={dir:x<W/2?-1:1,t:0,p:cur};
+    if(correct){score++;ding();pops.push({a:1,y:230,t:"Good!",c:"#19b5a5"})}
+    else{lives--;bleh();shake=0.25;pops.push({a:1,y:230,t:"Oops!",c:"#e03131"})}
+    cur=null;spawn=0.2;
+  }
+  function pat(c,p,x,y,al){
+    c.globalAlpha=al;
+    drawPoo(c,x,y,110,p.tint?"#7d8a3a":pooCol("doctor"),"none",t);
+    p.spots.forEach(function(d){c.fillStyle="#e03131";ell(c,x+d[0]*110,y+d[1]*110,5,5)});
+    if(p.star){c.fillStyle="#ffd43b";c.font="22px sans-serif";c.textAlign="center";c.fillText("⭐",x-36,y-48)}
+    if(p.sick){c.font="26px sans-serif";c.textAlign="center";c.fillText("🌡️",x+34,y-30)}
+    c.globalAlpha=1;
+  }
+  return {
+    name:"clinic",
+    pointer:noop,
+    tap:function(x){if(cur&&!fly)dec(cur.sick,x)},
+    key:function(code){if(code==="ArrowLeft"){this.tap(0);return true}if(code==="ArrowRight"){this.tap(W);return true}return false},
+    update:function(dt){
+      t+=dt;shake=Math.max(0,shake-dt);
+      pops.forEach(function(p){p.a-=2*dt;p.y-=30*dt});pops=pops.filter(function(p){return p.a>0});
+      if(fly){fly.t+=dt;if(fly.t>0.35)fly=null}
+      if(cur){cur.age+=dt;if(cur.age>limit()){lives--;bleh();shake=0.25;cur=null;spawn=0.3}}
+      else if(!fly){spawn-=dt;if(spawn<=0)neu()}
+      if(lives<=0)return {score:score,pts:score};
+      return null;
+    },
+    draw:function(c){
+      c.save();if(shake>0)c.translate((Math.random()-0.5)*10,(Math.random()-0.5)*10);
+      c.fillStyle="#eaf6ff";c.fillRect(-20,-20,W+40,H+40);
+      c.fillStyle="#d4f1df";c.fillRect(0,100,W/2,H-100);c.fillStyle="#ffe1e1";c.fillRect(W/2,100,W/2,H-100);
+      c.font="800 24px 'Baloo 2',sans-serif";c.textAlign="center";c.fillStyle="#2f9e44";c.fillText("🏠 Home",90,150);c.fillStyle="#e03131";c.fillText("🛏️ Bed",270,150);
+      c.font="16px 'Baloo 2',sans-serif";c.fillStyle="#555";c.fillText("healthy",90,172);c.fillText("sick",270,172);
+      if(cur){
+        pat(c,cur,180,380,1);
+        c.fillStyle="#fff";c.fillRect(100,440,160,12);c.fillStyle=cur.age/limit()>0.7?"#e03131":"#339af0";c.fillRect(100,440,160*Math.max(0,1-cur.age/limit()),12);
+        c.strokeStyle="#3b2412";c.lineWidth=2;c.strokeRect(100,440,160,12);
+      }
+      if(fly)pat(c,fly.p,180+fly.dir*fly.t*900,380,Math.max(0,1-fly.t*2.5));
+      drawPoo(c,W/2,H-24,44,pooCol("doctor"),gameAcc("doctor","doctor stetho"),t);
+      c.font="800 26px 'Baloo 2',sans-serif";c.textAlign="center";
+      pops.forEach(function(p){c.globalAlpha=Math.max(0,p.a);c.fillStyle=p.c;c.fillText(p.t,W/2,p.y)});c.globalAlpha=1;
+      c.restore();
+      hud(c,"Patients: "+score,lives);
+      if(t<3)banner(c,"Sick = right, healthy = left!");
+    }
+  };
+}
+
+/* ---------- game 24: Poo Grill ---------- */
+function GrillGame(){
+  var t=0,score=0,lives=3,slots=[],spawn=0.5,pops=[],POS=[[70,190],[180,190],[290,190],[70,345],[180,345],[290,345]],i;
+  for(i=0;i<6;i++)slots.push(null);
+  function n(){return Math.min(6,2+Math.floor(score/6))}
+  function sp(){return 0.2+Math.min(score*0.004,0.22)}
+  function pop(x,y,txt,col){pops.push({x:x,y:y,t:txt,c:col,a:1})}
+  return {
+    name:"grill",
+    pointer:noop,
+    tap:function(x,y){
+      for(var k=0;k<6;k++){
+        var q=slots[k];if(!q)continue;
+        if(Math.hypot(x-POS[k][0],y-POS[k][1])<58){
+          if(q.p>=0.55&&q.p<=0.9){
+            if(q.side===0){q.side=1;q.p=0;tone("triangle",500,700,0.08,0.12);pop(POS[k][0],POS[k][1]-50,"Flip!","#fff")}
+            else{score++;slots[k]=null;ding();pop(POS[k][0],POS[k][1]-50,"Yum!","#ffd43b")}
+          }else if(q.p<0.55){q.p=Math.max(0,q.p-0.15);tone("sine",200,150,0.08,0.08);pop(POS[k][0],POS[k][1]-50,"Too soon","#ccc")}
+          return;
+        }
+      }
+    },
+    update:function(dt){
+      t+=dt;spawn-=dt;
+      pops.forEach(function(p){p.a-=1.8*dt;p.y-=30*dt});pops=pops.filter(function(p){return p.a>0});
+      var act=slots.filter(function(q,k){return q&&k<6}).length;
+      if(spawn<=0&&act<n()){
+        var free=[];for(var k=0;k<n();k++)if(!slots[k])free.push(k);
+        if(free.length)slots[free[Math.floor(Math.random()*free.length)]]={p:0,side:0};
+        spawn=Math.max(0.8,2.0-score*0.03);
+      }
+      for(var j=0;j<6;j++){var q=slots[j];if(!q)continue;q.p+=sp()*dt;if(q.p>1){lives--;bleh();pop(POS[j][0],POS[j][1]-50,"Burnt!","#e03131");slots[j]=null}}
+      if(lives<=0)return {score:score,pts:score};
+      return null;
+    },
+    draw:function(c){
+      c.fillStyle="#3a3a42";c.fillRect(0,0,W,H);
+      c.fillStyle="#2a2a30";for(var b=0;b<16;b++)c.fillRect(0,100+b*30,W,6);
+      for(var k=0;k<6;k++){
+        var x=POS[k][0],y=POS[k][1],on=k<n();
+        c.fillStyle=on?"#4a4a54":"#33333a";ell(c,x,y,52,52);
+        var q=slots[k];if(!q)continue;
+        var raw=[232,138,138],done=[138,74,42],burnt=[34,34,34],f=q.p<0.7?q.p/0.7:1,col=raw.map(function(v,i){return Math.round(v+(done[i]-v)*f)});
+        if(q.p>0.9){var z=(q.p-0.9)/0.1;col=done.map(function(v,i){return Math.round(v+(burnt[i]-v)*z)})}
+        c.fillStyle="rgb("+col.join(",")+")";ell(c,x,y,38,38);
+        if(q.side===1){c.strokeStyle="rgba(0,0,0,0.25)";c.lineWidth=3;for(var g=-1;g<=1;g++){c.beginPath();c.moveTo(x-22,y+g*14);c.lineTo(x+22,y+g*14);c.stroke()}}
+        c.lineCap="butt";c.lineWidth=7;
+        c.strokeStyle="rgba(76,217,100,0.55)";c.beginPath();c.arc(x,y,48,-Math.PI/2+0.55*Math.PI*2,-Math.PI/2+0.9*Math.PI*2);c.stroke();
+        c.strokeStyle=(q.p>=0.55&&q.p<=0.9)?"#fff":"#ffd43b";c.beginPath();c.arc(x,y,48,-Math.PI/2,-Math.PI/2+q.p*Math.PI*2);c.stroke();
+        c.fillStyle="#fff";c.font="800 14px 'Baloo 2',sans-serif";c.textAlign="center";c.fillText(q.side===0?"side 1":"side 2",x,y+5);
+      }
+      drawPoo(c,W/2,H-24,58,pooCol("burger"),gameAcc("burger","burger"),t);
+      c.font="800 22px 'Baloo 2',sans-serif";c.textAlign="center";
+      pops.forEach(function(p){c.globalAlpha=Math.max(0,p.a);c.fillStyle=p.c;c.fillText(p.t,p.x,p.y)});c.globalAlpha=1;
+      hud(c,"Served: "+score,lives);
+      if(t<3)banner(c,"Tap when the ring is green!");
+    }
+  };
+}
+
 /* ---------- finale: Poo Disco ---------- */
 function DiscoGame(){
   var t=0,beat=-1,conf=[],NOTES=[262,330,392,330,294,349,440,349];
@@ -2532,7 +2669,7 @@ function fit(){
 window.addEventListener("resize",fit);
 function px(e){var r=cv.getBoundingClientRect();return (e.clientX-r.left)*W/r.width}
 function py(e){var r=cv.getBoundingClientRect();return (e.clientY-r.top)*H/r.height}
-var GAMES={catch:CatchGame,flap:FlapGame,whack:WhackGame,run:RunGame,dress:DressGame,disco:DiscoGame,hop:HopGame,match:MatchGame,care:CareGame,hatch:HatchGame,says:SaysGame,tower:TowerGame,bounce:BounceGame,pairs:PairsGame,slice:SliceGame,race:RaceGame,beat:function(){return BeatGame("pop","beat",3,230,300,"swoop shades")},spot:SpotGame,bricks:BricksGame,pipes:PipesGame,duel:DuelGame,path:PathGame,juggle:JuggleGame,blast:BlastGame,kitchen:KitchenGame,pizza:PizzaGame};
+var GAMES={catch:CatchGame,flap:FlapGame,whack:WhackGame,run:RunGame,dress:DressGame,disco:DiscoGame,hop:HopGame,match:MatchGame,care:CareGame,hatch:HatchGame,says:SaysGame,tower:TowerGame,bounce:BounceGame,pairs:PairsGame,slice:SliceGame,race:RaceGame,beat:function(){return BeatGame("pop","beat",3,230,300,"swoop shades")},spot:SpotGame,bricks:BricksGame,pipes:PipesGame,duel:DuelGame,path:PathGame,juggle:JuggleGame,blast:BlastGame,kitchen:KitchenGame,pizza:PizzaGame,clinic:ClinicGame,grill:GrillGame};
 cv.addEventListener("pointerdown",function(e){e.preventDefault();audio();if(game&&running)game.tap(px(e),py(e))});
 cv.addEventListener("pointerup",function(e){if(game&&running&&game.up)game.up(px(e),py(e))});
 cv.addEventListener("pointermove",function(e){if(game&&running)game.pointer(px(e),py(e))});

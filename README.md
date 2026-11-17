@@ -29,8 +29,10 @@ A silly collect-the-poos game for Farah, Mia and Gemma. Each poo has its own min
 | Fairy Poo | Poo Path (steer down a winding path) | 350 |
 | Clown Poo | Poo Juggle (keep balls in the air) | 370 |
 | Unicorn Poo | Rainbow Blast (shoot the grumpy clouds) | 390 |
+| Chef Poo-la-la | Poo Kitchen (tap ingredients in ticket order) | 410 |
+| Poo-peroni | Pizza Spin (throw pepperoni at a spinning pizza) | 430 |
 
-Party points fill an egg. When it is full she taps it to hatch (7 taps) and the meter resets, so only one poo hatches at a time. Hatched poos sometimes ask for a wipe, a snack or a nap; ignoring them has no penalty and helping earns 4 party points. Once all twenty are hatched, the Poo Disco opens.
+Party points fill an egg. When it is full she taps it to hatch (7 taps) and the meter resets, so only one poo hatches at a time. Hatched poos sometimes ask for a wipe, a snack or a nap; ignoring them has no penalty and helping earns 4 party points. Once all twenty-two are hatched, the Poo Disco opens.
 
 Each scored game has three titles (Little Stinker, Super Pooper, Poo Master); the score levels are in `TITLES`.
 
@@ -43,3 +45,5 @@ To add a poo: add an entry to `POOS`, write a game object with `tap`, `pointer`,
 - **Sticker book:** every poo hatched, every title, and 10 special stickers.
 - **Rename:** each player can give any hatched poo their own name (14 letters max).
 - **Play vs. a friend:** two players take turns on the same game; the winner gets 5 bonus stars.
+
+- **Mystery eggs:** every player hatches the poos in their own random order (the first is always Sir Plops-a-Lot). Costs go up by hatch number, and unhatched poos are hidden.

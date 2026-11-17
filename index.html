@@ -200,7 +200,7 @@ var NAMES=["Farah","Mia","Gemma"];
 var PCOL={Farah:"#8b5cf6",Mia:"#19b5a5",Gemma:"#ff5fa2"};
 var store={profiles:{}};
 var OLD_NEED=[0,25,60,110];
-NAMES.forEach(function(n){store.profiles[n]={pts:0,best:{},hatched:1,meter:0,care:{},spent:0,hats:[],wear:{},names:{},golden:0,goldHatched:0,cared:0,wins:0,outfit:{hat:0,eyes:0,extra:0,color:0}}});
+NAMES.forEach(function(n){store.profiles[n]={pts:0,best:{},hatched:1,meter:0,order:null,care:{},spent:0,hats:[],wear:{},names:{},golden:0,goldHatched:0,cared:0,wins:0,outfit:{hat:0,eyes:0,extra:0,color:0}}});
 try{
   var s=JSON.parse(localStorage.getItem(KEY));
   if(s&&s.profiles)NAMES.forEach(function(n){
@@ -210,7 +210,7 @@ try{
     else{p.hatched=OLD_NEED.filter(function(v){return p.pts>=v}).length}
     if(o.care)p.care=o.care;
     p.spent=o.spent||0;p.hats=o.hats||[];p.wear=o.wear||{};p.names=o.names||{};
-    p.golden=o.golden||0;p.goldHatched=o.goldHatched||0;p.cared=o.cared||0;p.wins=o.wins||0;
+    p.order=o.order||null;p.golden=o.golden||0;p.goldHatched=o.goldHatched||0;p.cared=o.cared||0;p.wins=o.wins||0;
     if(o.outfit)["hat","eyes","extra","color"].forEach(function(k){p.outfit[k]=o.outfit[k]||0});
   });
 }catch(e){}
@@ -258,15 +258,20 @@ var POOS=[
   {id:"clown",name:"Clown Poo",color:"#8f5a2a",acc:"clown cone",cost:370,game:"juggle",gname:"Poo Juggle",
    blurb:"Tap the balls to toss them back up. Don't let any drop!"},
   {id:"unicorn",name:"Unicorn Poo",color:"#a8744a",acc:"unicorn mane",cost:390,game:"blast",gname:"Rainbow Blast",
-   blurb:"Slide to move. Your rainbows fire by themselves. Pop the grumpy clouds!"}
+   blurb:"Slide to move. Your rainbows fire by themselves. Pop the grumpy clouds!"},
+  {id:"chef",name:"Chef Poo-la-la",color:"#97612f",acc:"chef spoon",cost:410,game:"kitchen",gname:"Poo Kitchen",
+   blurb:"Tap the ingredients in the same order as the ticket. Hurry, the customers are hungry!"},
+  {id:"pepper",name:"Poo-peroni",color:"#a0522d",acc:"pizza",cost:430,game:"pizza",gname:"Pizza Spin",
+   blurb:"Tap to throw pepperoni onto the spinning pizza. Don't hit the other toppings!"}
 ];
+var COSTS=POOS.map(function(q){return q.cost}),ORIG=POOS.map(function(q){return q.id});
 var HATS=["none","hat","party","crown","bow"],HATN=["No hat","Top hat","Party hat","Crown","Bow"];
 var EYES=["none","shades","round"],EYEN=["No glasses","Cool shades","Round glasses"];
 var EXTRAS=["none","stache","wings","gold"],EXN=["Nothing extra","Moustache","Wings","Sparkles"];
 var COLORS=["#8a5a2b","#f5b800","#ff7eb6","#19b5a5","#8b5cf6"],COLN=["Classic brown","Golden","Pink","Teal","Purple"];
 function has(a,k){return (" "+a+" ").indexOf(" "+k+" ")>=0}
 function outfitAcc(o){return HATS[o.hat]+" "+EYES[o.eyes]+" "+EXTRAS[o.extra]}
-var HEADTOK=["hat","party","crown","bow","band","phones","hardhat","helmet","cap","chef","cowboy","wizard","santa","pirate","unicorn","gcrown","rainbow","halo","flame","ninja","racer","swoop","sparklehat","plumber","musket","cone"];
+var HEADTOK=["hat","party","crown","bow","band","phones","hardhat","helmet","cap","chef","cowboy","wizard","santa","pirate","unicorn","gcrown","rainbow","halo","flame","ninja","racer","swoop","sparklehat","plumber","musket","cone","pizza"];
 var HATSHOP=[
   {id:"party",tok:"party",name:"Party Hat",price:15},
   {id:"cap",tok:"cap",name:"Baseball Cap",price:20},
@@ -320,11 +325,25 @@ function tickCare(){
   return changed;
 }
 /* score needed in each game for each title */
-var TITLES={"catch":[30,70,130],flap:[5,15,40],whack:[8,15,25],run:[10,30,50],hop:[15,40,80],match:[5,10,20],says:[4,8,12],tower:[8,18,30],bounce:[10,25,50],pairs:[9,27,47],slice:[15,40,80],race:[25,60,120],beat:[20,50,100],spot:[20,45,80],bricks:[20,50,90],pipes:[4,9,15],duel:[15,40,80],path:[20,50,100],juggle:[15,40,80],blast:[15,40,80]};
+var TITLES={"catch":[30,70,130],flap:[5,15,40],whack:[8,15,25],run:[10,30,50],hop:[15,40,80],match:[5,10,20],says:[4,8,12],tower:[8,18,30],bounce:[10,25,50],pairs:[9,27,47],slice:[15,40,80],race:[25,60,120],beat:[20,50,100],spot:[20,45,80],bricks:[20,50,90],pipes:[4,9,15],duel:[15,40,80],kitchen:[8,18,30],pizza:[15,40,80],path:[20,50,100],juggle:[15,40,80],blast:[15,40,80]};
 var RANKS=["","Little Stinker","Super Pooper","Poo Master"];
 function rankOf(g,best){var a=TITLES[g];if(!a)return 0;return a.filter(function(v){return (best||0)>=v}).length}
 var me=null, sel=POOS[0];
 function prof(){return store.profiles[me]}
+function shuf(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),t=a[i];a[i]=a[j];a[j]=t}return a}
+function ensureOrder(p){
+  var o=(p.order||ORIG.slice(0,Math.max(1,p.hatched))).filter(function(id,i,a){return ORIG.indexOf(id)>=0&&a.indexOf(id)===i});
+  if(o[0]!==ORIG[0]){o=o.filter(function(id){return id!==ORIG[0]});o.unshift(ORIG[0])}
+  p.order=o.concat(shuf(ORIG.filter(function(id){return o.indexOf(id)<0})));
+}
+function applyOrder(n){
+  var p=store.profiles[n];if(!p)return;
+  ensureOrder(p);
+  POOS.sort(function(a,b){return p.order.indexOf(a.id)-p.order.indexOf(b.id)});
+  POOS.forEach(function(q,i){q.cost=COSTS[i]});
+  save();
+}
+function hasPoo(n,id){var p=store.profiles[n];ensureOrder(p);return p.order.indexOf(id)<p.hatched}
 function unlocked(q){return POOS.indexOf(q)<prof().hatched}
 
 /* ---------- sounds ---------- */
@@ -605,6 +624,16 @@ function drawPoo(c,x,y,s,color,acc,t,noFace){
     if(has(acc,"mane")){
       var mc=["#ff5fa2","#ffd43b","#40c057","#339af0","#8b5cf6"];
       for(var mi=0;mi<5;mi++){c.fillStyle=mc[mi];ell(c,x-0.34*s-(mi%2)*0.04*s,y-(0.9-mi*0.17)*s,0.09*s,0.09*s)}
+    }
+    if(has(acc,"pizza")){
+      c.fillStyle="#e8b45a";c.beginPath();c.moveTo(x-0.26*s,y-0.8*s);c.lineTo(x+0.26*s,y-0.8*s);c.lineTo(x+0.02*s,y-1.28*s);c.closePath();c.fill();
+      c.fillStyle="#ffd86b";c.beginPath();c.moveTo(x-0.21*s,y-0.84*s);c.lineTo(x+0.21*s,y-0.84*s);c.lineTo(x+0.02*s,y-1.2*s);c.closePath();c.fill();
+      c.fillStyle="#d9363e";ell(c,x-0.06*s,y-0.95*s,0.06*s,0.06*s);ell(c,x+0.08*s,y-0.9*s,0.05*s,0.05*s);ell(c,x+0.01*s,y-1.1*s,0.045*s,0.045*s);
+    }
+    if(has(acc,"spoon")){
+      c.strokeStyle="#c58b4a";c.lineWidth=Math.max(3,0.05*s);c.lineCap="round";
+      c.beginPath();c.moveTo(x-0.42*s,y-0.04*s);c.lineTo(x-0.58*s,y-0.5*s);c.stroke();c.lineCap="butt";
+      c.fillStyle="#c58b4a";ell(c,x-0.6*s,y-0.56*s,0.08*s,0.11*s);
     }
     if(has(acc,"nerd")){
       c.strokeStyle="#111";c.lineWidth=Math.max(2.5,0.04*s);c.fillStyle="rgba(255,255,255,0.35)";
@@ -1283,7 +1312,7 @@ function HatchGame(){
   var golden=pendingGolden;pendingGolden=false;
   var pr=prof(),q=golden?sel:POOS[pr.hatched],prize=null;
   if(golden)for(var i=0;i<RAREHATS.length;i++)if(pr.hats.indexOf(RAREHATS[i].id)<0){prize=RAREHATS[i];break}
-  var ecol=golden?"#c98f00":q.color,taps=0,NEED=golden?9:7,t=0,wob=0,done=false,doneT=0,conf=[];
+  var ecol=golden?"#c98f00":"#b9a3f0",taps=0,NEED=golden?9:7,t=0,wob=0,done=false,doneT=0,conf=[];
   var title=golden?(prize?"You got the "+prize.name+"!":"Bonus ⭐ 25!"):"It's "+q.name+"!";
   return {
     name:"hatch",
@@ -2119,10 +2148,111 @@ function BlastGame(){
   };
 }
 
+/* ---------- game 21: Poo Kitchen ---------- */
+function KitchenGame(){
+  var ING=["🍞","🥩","🧀","🥬","🍅"],t=0,order=[],idx=0,left=0,limit=0,score=0,lives=3,flash=0,pops=[],BW=60,BY=470;
+  function bx(i){return 6+i*(BW+12)}
+  function neu(){
+    var len=Math.min(6,3+Math.floor(score/4));order=[];idx=0;
+    for(var i=0;i<len;i++)order.push(Math.floor(Math.random()*5));
+    limit=Math.max(3.5,2.6+len*1.3-score*0.07);left=limit;
+  }
+  neu();
+  return {
+    name:"kitchen",
+    pointer:noop,
+    tap:function(x,y){
+      if(y<BY-10||y>BY+BW+10)return;
+      var i=Math.floor((x-6)/(BW+12));if(i<0||i>4||x>bx(i)+BW)return;
+      flash=0.12;
+      if(i===order[idx]){
+        idx++;tone("triangle",380+i*90,380+i*90,0.07,0.12);
+        if(idx>=order.length){score++;ding();pops.push({a:1,y:300});neu()}
+      }else{lives--;bleh();idx=0}
+    },
+    key:function(code){var m={Digit1:0,Digit2:1,Digit3:2,Digit4:3,Digit5:4};if(m[code]!=null){this.tap(bx(m[code])+5,BY+5);return true}return false},
+    update:function(dt){
+      t+=dt;flash-=dt;left-=dt;
+      pops.forEach(function(p){p.a-=2*dt;p.y-=40*dt});pops=pops.filter(function(p){return p.a>0});
+      if(left<=0){lives--;bleh();neu()}
+      if(lives<=0)return {score:score,pts:score*2};
+      return null;
+    },
+    draw:function(c){
+      c.fillStyle="#fff2d6";c.fillRect(0,0,W,H);
+      c.fillStyle="#fff";c.fillRect(14,56,332,12);c.fillStyle=left<2?"#e03131":"#19b5a5";c.fillRect(14,56,332*Math.max(0,left/limit),12);
+      c.strokeStyle="#3b2412";c.lineWidth=2;c.strokeRect(14,56,332,12);
+      c.fillStyle="#fff";c.strokeStyle="#d9c9a3";c.lineWidth=4;c.fillRect(20,110,320,96);c.strokeRect(20,110,320,96);
+      c.font="12px sans-serif";c.textAlign="left";c.fillStyle="#a99";c.fillText("ORDER",30,126);
+      var n=order.length,w=Math.min(50,290/n),x0=180-w*n/2;
+      c.textAlign="center";c.textBaseline="middle";c.font=Math.round(w*0.8)+"px sans-serif";
+      order.forEach(function(o,i){
+        c.globalAlpha=i<idx?0.25:1;c.fillText(ING[o],x0+w*i+w/2,166);
+        if(i===idx){c.strokeStyle="#ff5fa2";c.lineWidth=4;c.strokeRect(x0+w*i+2,166-w*0.5,w-4,w)}
+      });
+      c.globalAlpha=1;c.textBaseline="alphabetic";
+      drawPoo(c,W/2,370,80,pooCol("chef"),gameAcc("chef","chef spoon"),t);
+      for(var i=0;i<5;i++){
+        c.fillStyle=flash>0?"#ffe08a":"#fff";c.fillRect(bx(i),BY,BW,BW);c.strokeStyle="#c9b07a";c.lineWidth=3;c.strokeRect(bx(i),BY,BW,BW);
+        c.font="36px sans-serif";c.textAlign="center";c.textBaseline="middle";c.fillStyle="#000";c.fillText(ING[i],bx(i)+BW/2,BY+BW/2+2);c.textBaseline="alphabetic";
+      }
+      c.font="800 26px 'Baloo 2',sans-serif";c.textAlign="center";
+      pops.forEach(function(p){c.globalAlpha=Math.max(0,p.a);c.fillStyle="#19b5a5";c.fillText("Order up!",W/2,p.y)});c.globalAlpha=1;
+      hud(c,"Orders: "+score,lives);
+      if(t<3)banner(c,"Tap in ticket order!");
+    }
+  };
+}
+
+/* ---------- game 22: Pizza Spin ---------- */
+function PizzaGame(){
+  var t=0,rot=0,dir=1,lvl=0,stuck=[],obst=[],need=6,got=0,score=0,lives=3,PX=W/2,PY=235,R=84,fl=[],spd=1.6,shake=0,msg=0;
+  function ad(a,b){var d=Math.abs(a-b)%(Math.PI*2);return d>Math.PI?Math.PI*2-d:d}
+  function setup(){
+    stuck=[];obst=[];got=0;need=6+lvl;spd=1.6+lvl*0.22;
+    var n=Math.min(5,1+lvl);
+    for(var i=0;i<n;i++){var a,tries=0;do{a=Math.random()*Math.PI*2;tries++}while(tries<30&&obst.some(function(o){return ad(o,a)<0.9}));obst.push(a)}
+  }
+  setup();
+  return {
+    name:"pizza",
+    pointer:noop,
+    tap:function(){fl.push({y:H-90});tone("square",420,520,0.05,0.08)},
+    update:function(dt){
+      t+=dt;shake=Math.max(0,shake-dt);msg-=dt;
+      if(lvl>0&&Math.floor((t-dt)/4)!==Math.floor(t/4))dir=-dir;
+      rot+=dir*spd*(1+0.4*Math.sin(t*0.9))*dt;
+      fl.forEach(function(f){f.y-=1200*dt});
+      var land=[];fl=fl.filter(function(f){if(f.y<=PY+R-6){land.push(f);return false}return true});
+      land.forEach(function(){
+        var a=Math.PI/2-rot,bad=stuck.concat(obst).some(function(o){return ad(o,a)<0.3});
+        if(bad){lives--;shake=0.3;bleh()}
+        else{stuck.push(a);got++;score++;ding()}
+      });
+      if(got>=need&&lives>0){lvl++;setup();tada();msg=1.5}
+      if(lives<=0)return {score:score,pts:score};
+      return null;
+    },
+    draw:function(c){
+      c.save();if(shake>0)c.translate((Math.random()-0.5)*10,(Math.random()-0.5)*10);
+      c.fillStyle="#ffe9c7";c.fillRect(-20,-20,W+40,H+40);
+      c.fillStyle="#d89a4a";ell(c,PX,PY,R+10,R+10);c.fillStyle="#e03b2c";ell(c,PX,PY,R,R);c.fillStyle="#ffd86b";ell(c,PX,PY,R-8,R-8);
+      obst.forEach(function(a){var x=PX+Math.cos(a+rot)*(R-22),y=PY+Math.sin(a+rot)*(R-22);c.fillStyle="#2f2f2f";ell(c,x,y,13,13);c.fillStyle="#ffd86b";ell(c,x,y,5,5)});
+      stuck.forEach(function(a){var x=PX+Math.cos(a+rot)*(R-22),y=PY+Math.sin(a+rot)*(R-22);c.fillStyle="#c9302c";ell(c,x,y,14,14);c.fillStyle="#e8645c";ell(c,x-3,y-3,4,4)});
+      fl.forEach(function(f){c.fillStyle="#c9302c";ell(c,PX,f.y,14,14)});
+      drawPoo(c,W/2,H-30,56,pooCol("pepper"),gameAcc("pepper","pizza"),t);
+      c.fillStyle="#c9302c";ell(c,PX,H-100,14,14);
+      c.restore();
+      hud(c,"Pepperoni: "+score,lives);
+      if(msg>0)banner(c,"Next pizza!");else if(t<3)banner(c,"Tap to throw!");
+    }
+  };
+}
+
 /* ---------- finale: Poo Disco ---------- */
 function DiscoGame(){
   var t=0,beat=-1,conf=[],NOTES=[262,330,392,330,294,349,440,349];
-  var spots=[];for(var sr=0;sr<5;sr++)for(var sk=0;sk<4;sk++)spots.push([45+sk*90,270+sr*68]);
+  var spots=[];for(var sr=0;sr<5;sr++)for(var sk=0;sk<5;sk++)spots.push([36+sk*72,270+sr*68]);
   return {
     name:"disco",
     pointer:noop,
@@ -2151,7 +2281,7 @@ function DiscoGame(){
       POOS.forEach(function(q,i){
         var ph=t*7.85+i*1.3;
         c.save();c.translate(spots[i][0],spots[i][1]-Math.abs(Math.sin(ph))*26);c.rotate(Math.sin(ph)*0.22);
-        drawPoo(c,0,0,44,colOf(q),accOf(q),t);c.restore();
+        drawPoo(c,0,0,40,colOf(q),accOf(q),t);c.restore();
       });
       confDraw(c,conf);
       c.font="700 18px 'Baloo 2',sans-serif";c.fillStyle="#fff";c.fillText("Tap anywhere to toot!",W/2,196);
@@ -2171,7 +2301,7 @@ function buildWho(){
     var name=document.createElement("b");name.textContent=n;
     var pts=document.createElement("span");pts.textContent="⭐ "+(store.profiles[n].pts-store.profiles[n].spent)+" party points";
     b.appendChild(cv);b.appendChild(name);b.appendChild(pts);
-    b.addEventListener("click",function(){me=n;sel=POOS[0];fart();buildHome();show("home")});
+    b.addEventListener("click",function(){me=n;applyOrder(n);sel=POOS[0];fart();buildHome();show("home")});
     box.appendChild(b);
   });
 }
@@ -2179,7 +2309,7 @@ function buildWho(){
 var versus=null;
 function eligibleOpps(){
   var idx=POOS.indexOf(sel);
-  return NAMES.filter(function(n){return n!==me&&store.profiles[n].hatched>idx});
+  return NAMES.filter(function(n){return n!==me&&hasPoo(n,sel.id)});
 }
 function buildHome(){
   var p=prof();
@@ -2194,20 +2324,22 @@ function buildHome(){
     $("barfill").style.width="100%";
     $("next").textContent="You hatched every poo! The Poo Disco is open!";
   }
+  $("next").textContent+="  ("+Math.min(p.hatched,POOS.length)+" / "+POOS.length+" poos)";
   $("golden").style.display=p.golden>0?"":"none";
   $("golden").textContent="✨🥚 Golden egg"+(p.golden>1?"s x"+p.golden:"")+"! Tap to hatch";
   $("disco").style.display=nextPoo?"none":"";
   var room=$("room");room.innerHTML="";
   POOS.forEach(function(q,idx){
+    if(idx>p.hatched)return;
     var open=idx<p.hatched,isEgg=idx===p.hatched,ready=isEgg&&eggReady;
     var b=document.createElement("button");b.className="poo"+(q===sel?" sel":"")+(ready?" ready":"");
     var cv=document.createElement("canvas");cv.width=200;cv.height=220;
     var g=cv.getContext("2d"),a=open?accOf(q):"none",need=open?careOf(q.id).need:null;
-    if(isEgg)drawEgg(g,100,208,150,q.color,Math.min(1,p.meter/q.cost));
+    if(isEgg)drawEgg(g,100,208,150,"#b9a3f0",Math.min(1,p.meter/q.cost));
     else drawPoo(g,100,208,has(a,"wings")?118:140,open?colOf(q):"#cbbfa3",a,0.1,!open);
     if(need)drawNeedBubble(g,NEEDICON[need]);
     var lab=document.createElement("small"),rk=open?rankOf(q.game,p.best[q.game]):0;
-    lab.textContent=open?(nameOf(q)+(rk?"\n"+"⭐".repeat(rk):"")):(isEgg?(ready?"Tap to hatch!":"Egg"):"Locked");
+    lab.textContent=open?(nameOf(q)+(rk?"\n"+"⭐".repeat(rk):"")):(ready?"Tap to hatch!":"Mystery egg");
     b.appendChild(cv);b.appendChild(lab);
     b.addEventListener("click",function(){
       if(ready){audio();start("hatch");return}
@@ -2336,7 +2468,7 @@ function startVersus(opp){
   versusReady();
 }
 function versusReady(){
-  me=versus.players[versus.turn];
+  me=versus.players[versus.turn];applyOrder(me);
   stop();show("game");
   $("again").style.display="";$("again").textContent="Go!";$("back").textContent="Cancel";
   $("otitle").textContent=me+"'s turn!";$("oscore").textContent="";
@@ -2346,7 +2478,7 @@ function versusReady(){
   versus.next=function(){start(versus.kind)};
 }
 function endVersus(){
-  me=versus.orig;sel=versus.sel;versus=null;
+  me=versus.orig;applyOrder(me);sel=versus.sel;versus=null;
   $("again").textContent="Play again";$("back").textContent="Back to the party";
   buildHome();show("home");
 }
@@ -2363,7 +2495,7 @@ function fit(){
 window.addEventListener("resize",fit);
 function px(e){var r=cv.getBoundingClientRect();return (e.clientX-r.left)*W/r.width}
 function py(e){var r=cv.getBoundingClientRect();return (e.clientY-r.top)*H/r.height}
-var GAMES={catch:CatchGame,flap:FlapGame,whack:WhackGame,run:RunGame,dress:DressGame,disco:DiscoGame,hop:HopGame,match:MatchGame,care:CareGame,hatch:HatchGame,says:SaysGame,tower:TowerGame,bounce:BounceGame,pairs:PairsGame,slice:SliceGame,race:RaceGame,beat:function(){return BeatGame("pop","beat",3,230,300,"swoop shades")},spot:SpotGame,bricks:BricksGame,pipes:PipesGame,duel:DuelGame,path:PathGame,juggle:JuggleGame,blast:BlastGame};
+var GAMES={catch:CatchGame,flap:FlapGame,whack:WhackGame,run:RunGame,dress:DressGame,disco:DiscoGame,hop:HopGame,match:MatchGame,care:CareGame,hatch:HatchGame,says:SaysGame,tower:TowerGame,bounce:BounceGame,pairs:PairsGame,slice:SliceGame,race:RaceGame,beat:function(){return BeatGame("pop","beat",3,230,300,"swoop shades")},spot:SpotGame,bricks:BricksGame,pipes:PipesGame,duel:DuelGame,path:PathGame,juggle:JuggleGame,blast:BlastGame,kitchen:KitchenGame,pizza:PizzaGame};
 cv.addEventListener("pointerdown",function(e){e.preventDefault();audio();if(game&&running)game.tap(px(e),py(e))});
 cv.addEventListener("pointerup",function(e){if(game&&running&&game.up)game.up(px(e),py(e))});
 cv.addEventListener("pointermove",function(e){if(game&&running)game.pointer(px(e),py(e))});
@@ -2503,7 +2635,7 @@ resetBtn.addEventListener("pointerdown",function(e){
   clearTimeout(holdT);
   holdT=setTimeout(function(){
     holdT=0;var p=prof();
-    p.pts=0;p.best={};p.hatched=1;p.meter=0;p.care={};p.spent=0;p.hats=[];p.wear={};p.names={};p.golden=0;p.goldHatched=0;p.cared=0;p.wins=0;p.outfit={hat:0,eyes:0,extra:0,color:0};
+    p.pts=0;p.best={};p.hatched=1;p.meter=0;p.care={};p.spent=0;p.hats=[];p.wear={};p.names={};p.golden=0;p.goldHatched=0;p.cared=0;p.wins=0;p.order=null;p.outfit={hat:0,eyes:0,extra:0,color:0};applyOrder(me);
     save();sel=POOS[0];buildHome();bleh();resetLabel(me+" starts fresh!");
   },3000);
 });

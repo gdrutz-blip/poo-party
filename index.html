@@ -268,7 +268,11 @@ var POOS=[
   {id:"doctor",name:"Doctor Plopsy",color:"#9b6a3d",acc:"doctor stetho",cost:450,game:"clinic",gname:"Poo Clinic",
    blurb:"Sick poos go to bed (tap right). Healthy poos go home (tap left). Be quick!"},
   {id:"burger",name:"Big Poo-ger",color:"#a56a35",acc:"burger",cost:470,game:"grill",gname:"Poo Grill",
-   blurb:"Tap each patty to flip it when the ring is in the green. Don't let them burn!"}
+   blurb:"Tap each patty to flip it when the ring is in the green. Don't let them burn!"},
+  {id:"dino",name:"Poo-saurus Rex",color:"#7f8f3c",acc:"dino",cost:490,game:"trail",gname:"Dino Trail",
+   blurb:"Swipe to steer the dino. Gobble the eggs, but don't crash into the wall or your own tail!"},
+  {id:"dentist",name:"Dr. Flossy",color:"#9a6535",acc:"dentist brush",cost:510,game:"teeth",gname:"Poo Dentist",
+   blurb:"Scrub the poo off the teeth with your finger before it makes a cavity!"}
 ];
 var COSTS=POOS.map(function(q){return Math.min(q.cost,150)}),ORIG=POOS.map(function(q){return q.id});
 var HATS=["none","hat","party","crown","bow"],HATN=["No hat","Top hat","Party hat","Crown","Bow"];
@@ -277,7 +281,7 @@ var EXTRAS=["none","stache","wings","gold"],EXN=["Nothing extra","Moustache","Wi
 var COLORS=["#8a5a2b","#f5b800","#ff7eb6","#19b5a5","#8b5cf6"],COLN=["Classic brown","Golden","Pink","Teal","Purple"];
 function has(a,k){return (" "+a+" ").indexOf(" "+k+" ")>=0}
 function outfitAcc(o){return HATS[o.hat]+" "+EYES[o.eyes]+" "+EXTRAS[o.extra]}
-var HEADTOK=["hat","party","crown","bow","band","phones","hardhat","helmet","cap","chef","cowboy","wizard","santa","pirate","unicorn","gcrown","rainbow","halo","flame","ninja","racer","swoop","sparklehat","plumber","musket","cone","pizza","doctor","burger"];
+var HEADTOK=["hat","party","crown","bow","band","phones","hardhat","helmet","cap","chef","cowboy","wizard","santa","pirate","unicorn","gcrown","rainbow","halo","flame","ninja","racer","swoop","sparklehat","plumber","musket","cone","pizza","doctor","burger","dino","dentist"];
 var HATSHOP=[
   {id:"party",tok:"party",name:"Party Hat",price:15},
   {id:"cap",tok:"cap",name:"Baseball Cap",price:20},
@@ -331,7 +335,7 @@ function tickCare(){
   return changed;
 }
 /* score needed in each game for each title */
-var TITLES={"catch":[30,70,130],flap:[5,15,40],whack:[8,15,25],run:[10,30,50],hop:[15,40,80],match:[5,10,20],says:[4,8,12],tower:[8,18,30],bounce:[10,25,50],pairs:[9,27,47],slice:[15,40,80],race:[25,60,120],beat:[20,50,100],spot:[20,45,80],bricks:[20,50,90],pipes:[4,9,15],duel:[15,40,80],kitchen:[8,18,30],pizza:[15,40,80],clinic:[20,50,100],grill:[10,25,45],path:[20,50,100],juggle:[15,40,80],blast:[15,40,80]};
+var TITLES={"catch":[30,70,130],flap:[5,15,40],whack:[8,15,25],run:[10,30,50],hop:[15,40,80],match:[5,10,20],says:[4,8,12],tower:[8,18,30],bounce:[10,25,50],pairs:[9,27,47],slice:[15,40,80],race:[25,60,120],beat:[20,50,100],spot:[20,45,80],bricks:[20,50,90],pipes:[4,9,15],duel:[15,40,80],kitchen:[8,18,30],pizza:[15,40,80],clinic:[20,50,100],grill:[10,25,45],trail:[10,25,45],teeth:[12,30,60],path:[20,50,100],juggle:[15,40,80],blast:[15,40,80]};
 var RANKS=["","Little Stinker","Super Pooper","Poo Master"];
 function rankOf(g,best){var a=TITLES[g];if(!a)return 0;return a.filter(function(v){return (best||0)>=v}).length}
 var me=null, sel=POOS[0];
@@ -653,6 +657,20 @@ function drawPoo(c,x,y,s,color,acc,t,noFace){
       c.fillStyle="#d9954a";c.beginPath();c.arc(x,y-0.74*s,0.32*s,Math.PI,2*Math.PI);c.fill();
       c.fillStyle="#fff3d6";[[-0.15,-0.9],[0,-0.98],[0.14,-0.88],[-0.05,-0.84]].forEach(function(d){ell(c,x+d[0]*s,y+d[1]*s,0.025*s,0.015*s)});
       c.fillStyle="#49b34f";ell(c,x,y-0.74*s,0.34*s,0.045*s);
+    }
+    if(has(acc,"dino")){
+      c.fillStyle="#3f9b4a";
+      [[-0.16,0.16],[0,0.24],[0.16,0.16]].forEach(function(d){c.beginPath();c.moveTo(x+d[0]*s-0.07*s,y-0.8*s);c.lineTo(x+d[0]*s,y-(0.8+d[1])*s);c.lineTo(x+d[0]*s+0.07*s,y-0.8*s);c.closePath();c.fill()});
+      c.fillStyle="#fff";c.beginPath();c.moveTo(x-0.1*s,y-0.2*s);c.lineTo(x-0.06*s,y-0.12*s);c.lineTo(x-0.02*s,y-0.2*s);c.closePath();c.fill();
+    }
+    if(has(acc,"dentist")){
+      c.fillStyle="#e9eef5";c.fillRect(x-0.26*s,y-0.82*s,0.52*s,0.045*s);
+      c.fillStyle="#fff3a0";ell(c,x,y-0.84*s,0.09*s,0.09*s);c.strokeStyle="#9aa3b0";c.lineWidth=Math.max(1.5,0.02*s);c.beginPath();c.arc(x,y-0.84*s,0.09*s,0,Math.PI*2);c.stroke();
+    }
+    if(has(acc,"brush")){
+      c.strokeStyle="#339af0";c.lineWidth=Math.max(3,0.05*s);c.lineCap="round";
+      c.beginPath();c.moveTo(x-0.42*s,y-0.04*s);c.lineTo(x-0.56*s,y-0.46*s);c.stroke();c.lineCap="butt";
+      c.fillStyle="#fff";c.fillRect(x-0.62*s,y-0.56*s,0.1*s,0.14*s);
     }
     if(has(acc,"nerd")){
       c.strokeStyle="#111";c.lineWidth=Math.max(2.5,0.04*s);c.fillStyle="rgba(255,255,255,0.35)";
@@ -2388,10 +2406,118 @@ function GrillGame(){
   };
 }
 
+/* ---------- game 25: Dino Trail (snake) ---------- */
+function TrailGame(){
+  var CW=30,COLS=12,ROWS=16,OX=0,OY=100,t=0,acc=0,score=0,dead=false;
+  var body=[[6,9],[5,9],[4,9]],dir=[1,0],nd=[1,0],egg=null,ax=0,ay=0,down=false;
+  function step(){return Math.max(0.1,0.24-score*0.004)}
+  function place(){
+    var ok=false,tries=0,e;
+    while(!ok&&tries++<200){e=[Math.floor(Math.random()*COLS),Math.floor(Math.random()*ROWS)];ok=!body.some(function(b){return b[0]===e[0]&&b[1]===e[1]})}
+    egg=e;
+  }
+  place();
+  function turn(dx,dy){if(dx===-dir[0]&&dy===-dir[1])return;nd=[dx,dy]}
+  return {
+    name:"trail",
+    tap:function(x,y){down=true;ax=x;ay=y},
+    pointer:function(x,y){
+      if(!down)return;
+      var dx=x-ax,dy=y-ay;if(Math.hypot(dx,dy)<18)return;
+      if(Math.abs(dx)>Math.abs(dy))turn(dx>0?1:-1,0);else turn(0,dy>0?1:-1);
+      ax=x;ay=y;
+    },
+    up:function(){down=false},
+    key:function(code){var m={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]};if(m[code]){turn(m[code][0],m[code][1]);return true}return false},
+    update:function(dt){
+      t+=dt;acc+=dt;
+      if(acc>=step()){
+        acc=0;dir=nd;
+        var h=[body[0][0]+dir[0],body[0][1]+dir[1]];
+        if(h[0]<0||h[1]<0||h[0]>=COLS||h[1]>=ROWS||body.some(function(b,i){return i<body.length-1&&b[0]===h[0]&&b[1]===h[1]})){bleh();dead=true;return {score:score,pts:score}}
+        body.unshift(h);
+        if(egg&&h[0]===egg[0]&&h[1]===egg[1]){score++;ding();place()}else body.pop();
+      }
+      return null;
+    },
+    draw:function(c){
+      c.fillStyle="#d9f2c4";c.fillRect(0,0,W,H);
+      for(var r=0;r<ROWS;r++)for(var k=0;k<COLS;k++){c.fillStyle=(r+k)%2?"#c9e8b0":"#d4eeba";c.fillRect(OX+k*CW,OY+r*CW,CW,CW)}
+      c.strokeStyle="#6b8f4a";c.lineWidth=4;c.strokeRect(OX+2,OY+2,COLS*CW-4,ROWS*CW-4);
+      if(egg){c.fillStyle="#fff7d1";ell(c,OX+egg[0]*CW+CW/2,OY+egg[1]*CW+CW/2+1,11,13);c.fillStyle="#f2b84b";ell(c,OX+egg[0]*CW+CW/2-2,OY+egg[1]*CW+CW/2+4,3,3);ell(c,OX+egg[0]*CW+CW/2+4,OY+egg[1]*CW+CW/2-3,3,3)}
+      for(var i=body.length-1;i>0;i--){
+        var b=body[i];c.fillStyle=i%2?"#4fae4f":"#3f9b4a";ell(c,OX+b[0]*CW+CW/2,OY+b[1]*CW+CW/2,CW/2-1,CW/2-1);
+      }
+      var hd=body[0];
+      drawPoo(c,OX+hd[0]*CW+CW/2,OY+hd[1]*CW+CW-1,40,pooCol("dino"),gameAcc("dino","dino"),t);
+      hud(c,"Eggs: "+score,null);
+      if(t<3)banner(c,"Swipe to steer!");
+    }
+  };
+}
+
+/* ---------- game 26: Poo Dentist ---------- */
+function TeethGame(){
+  var t=0,score=0,lives=3,spots=[],spawn=0.6,down=false,lx=0,ly=0,px=-99,py=-99,pops=[];
+  function tx(k){return 60+(k%4)*80}
+  function ty(k){return k<4?255:385}
+  function limit(){return Math.max(2.4,4.8-score*0.07)}
+  function maxS(){return Math.min(4,1+Math.floor(score/6))}
+  return {
+    name:"teeth",
+    tap:function(x,y){down=true;lx=x;ly=y;px=x;py=y},
+    pointer:function(x,y){
+      px=x;py=y;if(!down)return;
+      var d=Math.hypot(x-lx,y-ly);lx=x;ly=y;
+      spots.forEach(function(sp){if(Math.hypot(x-sp.x,y-sp.y)<42){sp.hp-=d/230}});
+    },
+    up:function(){down=false;px=-99},
+    update:function(dt){
+      t+=dt;spawn-=dt;
+      pops.forEach(function(p){p.a-=2*dt;p.y-=30*dt});pops=pops.filter(function(p){return p.a>0});
+      if(spawn<=0&&spots.length<maxS()){
+        var used=spots.map(function(sp){return sp.k}),free=[];for(var k=0;k<8;k++)if(used.indexOf(k)<0)free.push(k);
+        if(free.length){var kk=free[Math.floor(Math.random()*free.length)];spots.push({k:kk,x:tx(kk)+(Math.random()-0.5)*20,y:ty(kk)+(Math.random()-0.5)*40,hp:1,age:0})}
+        spawn=Math.max(0.5,1.5-score*0.02);
+      }
+      for(var i=spots.length-1;i>=0;i--){
+        var sp=spots[i];sp.age+=dt;
+        if(sp.hp<=0){score++;ding();pops.push({x:sp.x,y:sp.y-20,a:1});spots.splice(i,1)}
+        else if(sp.age>limit()){lives--;bleh();spots.splice(i,1)}
+      }
+      if(lives<=0)return {score:score,pts:score};
+      return null;
+    },
+    draw:function(c){
+      c.fillStyle="#cdeeff";c.fillRect(0,0,W,H);
+      c.fillStyle="#d94868";c.beginPath();c.moveTo(24,200);c.quadraticCurveTo(180,150,336,200);c.lineTo(346,330);c.lineTo(336,470);c.quadraticCurveTo(180,520,24,470);c.lineTo(14,330);c.closePath();c.fill();
+      c.fillStyle="#ff8aa0";c.fillRect(30,225,300,214);
+      for(var k=0;k<8;k++){
+        c.fillStyle="#fff";c.strokeStyle="#d7e3ee";c.lineWidth=3;
+        var x=tx(k)-32,y=ty(k)-44;c.beginPath();
+        if(c.roundRect)c.roundRect(x,y,64,88,14);else c.rect(x,y,64,88);
+        c.fill();c.stroke();
+      }
+      spots.forEach(function(sp){
+        var r=10+sp.hp*16,late=sp.age/limit()>0.65;
+        c.fillStyle=late&&Math.floor(t*8)%2?"#7a3b12":"#6b4423";ell(c,sp.x,sp.y,r,r*0.85);
+        c.fillStyle="#8a5a33";ell(c,sp.x-r*0.3,sp.y-r*0.3,r*0.35,r*0.3);
+        c.fillStyle="#fff";c.fillRect(sp.x-18,sp.y+r+4,36,4);c.fillStyle=late?"#e03131":"#339af0";c.fillRect(sp.x-18,sp.y+r+4,36*Math.max(0,1-sp.age/limit()),4);
+      });
+      if(px>0){c.fillStyle="#339af0";ell(c,px,py,12,12);c.fillStyle="#fff";c.fillRect(px-8,py-5,16,10)}
+      drawPoo(c,W/2,H-20,54,pooCol("dentist"),gameAcc("dentist","dentist brush"),t);
+      c.font="800 22px 'Baloo 2',sans-serif";c.textAlign="center";
+      pops.forEach(function(p){c.globalAlpha=Math.max(0,p.a);c.fillStyle="#fff";c.fillText("Sparkle!",p.x,p.y)});c.globalAlpha=1;
+      hud(c,"Clean: "+score,lives);
+      if(t<3)banner(c,"Scrub the brown spots!");
+    }
+  };
+}
+
 /* ---------- finale: Poo Disco ---------- */
 function DiscoGame(){
   var t=0,beat=-1,conf=[],NOTES=[262,330,392,330,294,349,440,349];
-  var spots=[];for(var sr=0;sr<5;sr++)for(var sk=0;sk<5;sk++)spots.push([36+sk*72,270+sr*68]);
+  var spots=[];for(var sr=0;sr<6;sr++)for(var sk=0;sk<5;sk++)spots.push([36+sk*72,262+sr*56]);
   return {
     name:"disco",
     pointer:noop,
@@ -2420,7 +2546,7 @@ function DiscoGame(){
       POOS.forEach(function(q,i){
         var ph=t*7.85+i*1.3;
         c.save();c.translate(spots[i][0],spots[i][1]-Math.abs(Math.sin(ph))*26);c.rotate(Math.sin(ph)*0.22);
-        drawPoo(c,0,0,40,colOf(q),accOf(q),t);c.restore();
+        drawPoo(c,0,0,36,colOf(q),accOf(q),t);c.restore();
       });
       confDraw(c,conf);
       c.font="700 18px 'Baloo 2',sans-serif";c.fillStyle="#fff";c.fillText("Tap anywhere to toot!",W/2,196);
@@ -2669,7 +2795,7 @@ function fit(){
 window.addEventListener("resize",fit);
 function px(e){var r=cv.getBoundingClientRect();return (e.clientX-r.left)*W/r.width}
 function py(e){var r=cv.getBoundingClientRect();return (e.clientY-r.top)*H/r.height}
-var GAMES={catch:CatchGame,flap:FlapGame,whack:WhackGame,run:RunGame,dress:DressGame,disco:DiscoGame,hop:HopGame,match:MatchGame,care:CareGame,hatch:HatchGame,says:SaysGame,tower:TowerGame,bounce:BounceGame,pairs:PairsGame,slice:SliceGame,race:RaceGame,beat:function(){return BeatGame("pop","beat",3,230,300,"swoop shades")},spot:SpotGame,bricks:BricksGame,pipes:PipesGame,duel:DuelGame,path:PathGame,juggle:JuggleGame,blast:BlastGame,kitchen:KitchenGame,pizza:PizzaGame,clinic:ClinicGame,grill:GrillGame};
+var GAMES={catch:CatchGame,flap:FlapGame,whack:WhackGame,run:RunGame,dress:DressGame,disco:DiscoGame,hop:HopGame,match:MatchGame,care:CareGame,hatch:HatchGame,says:SaysGame,tower:TowerGame,bounce:BounceGame,pairs:PairsGame,slice:SliceGame,race:RaceGame,beat:function(){return BeatGame("pop","beat",3,230,300,"swoop shades")},spot:SpotGame,bricks:BricksGame,pipes:PipesGame,duel:DuelGame,path:PathGame,juggle:JuggleGame,blast:BlastGame,kitchen:KitchenGame,pizza:PizzaGame,clinic:ClinicGame,grill:GrillGame,trail:TrailGame,teeth:TeethGame};
 cv.addEventListener("pointerdown",function(e){e.preventDefault();audio();if(game&&running)game.tap(px(e),py(e))});
 cv.addEventListener("pointerup",function(e){if(game&&running&&game.up)game.up(px(e),py(e))});
 cv.addEventListener("pointermove",function(e){if(game&&running)game.pointer(px(e),py(e))});

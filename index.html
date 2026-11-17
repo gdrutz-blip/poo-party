@@ -43,7 +43,7 @@
   .player:active{transform:translateY(5px);box-shadow:0 2px 0 #e3d3ad}
   .player b{font-size:30px;font-weight:800}
   .player span{font-size:16px;opacity:.75}
-  .player.farah b{color:var(--purple)} .player.mia b{color:var(--teal)} .player.gemma b{color:var(--pink)}
+  .player.farah b{color:var(--purple)} .player.mia b{color:var(--teal)} .player.gemma b{color:var(--pink)} .player.mummy b{color:#f08c00} .player.daddy b{color:#339af0}
 
   /* home */
   .top{width:100%;max-width:520px;display:flex;align-items:center;justify-content:space-between;gap:8px}
@@ -198,8 +198,8 @@ var $=function(id){return document.getElementById(id)};
 
 /* ---------- saved progress (one slot per kid, on this device) ---------- */
 var KEY="pooParty.v1";
-var NAMES=["Farah","Mia","Gemma"];
-var PCOL={Farah:"#8b5cf6",Mia:"#19b5a5",Gemma:"#ff5fa2"};
+var NAMES=["Farah","Mia","Gemma","Mummy","Daddy"];
+var PCOL={Farah:"#8b5cf6",Mia:"#19b5a5",Gemma:"#ff5fa2",Mummy:"#f08c00",Daddy:"#339af0"};
 var store={profiles:{}};
 var OLD_NEED=[0,25,60,110];
 NAMES.forEach(function(n){store.profiles[n]={pts:0,best:{},hatched:1,meter:0,order:null,care:{},spent:0,hats:[],wear:{},names:{},golden:0,goldHatched:0,cared:0,wins:0,outfit:{hat:0,eyes:0,extra:0,color:0}}});

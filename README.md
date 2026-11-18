@@ -37,7 +37,7 @@ A silly collect-the-poos game for Farrah, Mia and Gemma. Each poo has its own mi
 | Dr. Flossy | Poo Dentist (scrub the teeth) | 510 |
 | Gamer Poo | Pooball (pinball) | 530 |
 | Pinky Plop | Poo Drop (fall through the gaps) | 550 |
-| Crumbly Poo | Poo Cookies (match-3 puzzle) | 570 |
+| Crumbly Poo | Poo Match (match-3 puzzle) | 570 |
 
 Party points fill an egg. When it is full she taps it to hatch (7 taps) and the meter resets, so only one poo hatches at a time. Hatched poos sometimes ask for a wipe, a snack or a nap; ignoring them has no penalty and helping earns 4 party points. Once all twenty-nine are hatched, the Poo Disco opens.
 

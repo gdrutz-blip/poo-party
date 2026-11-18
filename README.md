@@ -44,7 +44,7 @@ To add a poo: add an entry to `POOS`, write a game object with `tap`, `pointer`,
 
 ## Extras
 
-- **Hat shop:** spend party points on hats for any hatched poo. Rare hats (Golden Crown, Rainbow Afro, Angel Halo, Flame Hair) only come from golden eggs.
+- **Poo shop:** spend party points on 20 hats, glasses, capes, poo colors and home-room backgrounds (prices from 150 to 2,000 stars). Rare hats (Golden Crown, Rainbow Afro, Angel Halo, Flame Hair) only come from golden eggs.
 - **Golden eggs:** earned the first time a game reaches its top title (Poo Master). Tap to hatch (9 taps) for a rare hat, or 25 bonus stars once all four are owned.
 - **Sticker book:** every poo hatched, every title, and 10 special stickers.
 - **Rename:** each player can give any hatched poo their own name (14 letters max).

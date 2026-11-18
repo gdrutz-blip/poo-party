@@ -507,7 +507,12 @@ function shade(hex,k){
 /* poo standing on (x,y), about s wide and s tall */
 function drawPoo(c,x,y,s,color,acc,t,noFace){
   t=t||0;
-  if(color==="rainbow")color=hslHex((t*90)%360,0.7,0.6);
+  var c1,c2,c3,c4;
+  if(color==="rainbow"){
+    var hh=t*60;
+    c1=hslHex((hh)%360,0.8,0.6);c2=hslHex((hh+70)%360,0.8,0.55);c3=hslHex((hh+160)%360,0.8,0.6);c4=hslHex((hh+250)%360,0.8,0.65);
+    color=c1;
+  }else{c1=c2=c3=c4=color}
   if(has(acc,"wings")){
     var fl=Math.sin(t*14)*0.25;
     c.fillStyle="#fff";c.strokeStyle="#9ad";c.lineWidth=2;
@@ -516,15 +521,15 @@ function drawPoo(c,x,y,s,color,acc,t,noFace){
       c.beginPath();c.ellipse(d*0.2*s,0,0.26*s,0.12*s,0,0,Math.PI*2);c.fill();c.stroke();c.restore();
     });
   }
-  c.fillStyle=shade(color,0.8);
+  c.fillStyle=shade(c1,0.8);
   ell(c,x,y-0.16*s,0.5*s,0.19*s);
-  c.fillStyle=color;
+  c.fillStyle=c1;
   ell(c,x,y-0.2*s,0.48*s,0.17*s);
-  c.fillStyle=shade(color,0.8);ell(c,x,y-0.42*s,0.37*s,0.17*s);
-  c.fillStyle=color;ell(c,x,y-0.46*s,0.36*s,0.15*s);
-  c.fillStyle=shade(color,0.8);ell(c,x,y-0.65*s,0.24*s,0.14*s);
-  c.fillStyle=color;ell(c,x,y-0.68*s,0.23*s,0.12*s);
-  ell(c,x+0.05*s,y-0.82*s,0.09*s,0.09*s);
+  c.fillStyle=shade(c2,0.8);ell(c,x,y-0.42*s,0.37*s,0.17*s);
+  c.fillStyle=c2;ell(c,x,y-0.46*s,0.36*s,0.15*s);
+  c.fillStyle=shade(c3,0.8);ell(c,x,y-0.65*s,0.24*s,0.14*s);
+  c.fillStyle=c3;ell(c,x,y-0.68*s,0.23*s,0.12*s);
+  c.fillStyle=c4;ell(c,x+0.05*s,y-0.82*s,0.09*s,0.09*s);
   if(!noFace){
     c.fillStyle="#fff";ell(c,x-0.13*s,y-0.46*s,0.08*s,0.09*s);ell(c,x+0.13*s,y-0.46*s,0.08*s,0.09*s);
     c.fillStyle="#222";ell(c,x-0.12*s,y-0.45*s,0.04*s,0.05*s);ell(c,x+0.14*s,y-0.45*s,0.04*s,0.05*s);

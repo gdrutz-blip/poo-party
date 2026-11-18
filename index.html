@@ -336,7 +336,7 @@ function tickCare(){
   return changed;
 }
 /* score needed in each game for each title */
-var TITLES={"catch":[30,70,130],flap:[5,15,40],whack:[8,15,25],run:[10,30,50],hop:[15,40,80],match:[5,10,20],says:[4,8,12],tower:[8,18,30],bounce:[10,25,50],pairs:[9,27,47],slice:[15,40,80],race:[25,60,120],beat:[20,50,100],spot:[20,45,80],bricks:[20,50,90],pipes:[4,9,15],duel:[15,40,80],kitchen:[8,18,30],pizza:[15,40,80],clinic:[20,50,100],grill:[10,25,45],trail:[10,25,45],teeth:[12,30,60],path:[20,50,100],juggle:[15,40,80],blast:[15,40,80]};
+var TITLES={"catch":[30,70,130],flap:[5,15,40],whack:[8,15,25],run:[10,30,50],hop:[15,40,80],match:[5,10,20],says:[4,8,12],tower:[8,18,30],bounce:[10,25,50],pairs:[8,16,25],slice:[15,40,80],race:[25,60,120],beat:[20,50,100],spot:[20,45,80],bricks:[20,50,90],pipes:[4,9,15],duel:[15,40,80],kitchen:[8,18,30],pizza:[8,15,25],clinic:[20,50,100],grill:[10,25,45],trail:[10,25,45],teeth:[12,30,60],path:[20,50,100],juggle:[15,40,80],blast:[15,40,80]};
 var RANKS=["","Little Stinker","Super Pooper","Poo Master"];
 function rankOf(g,best){var a=TITLES[g];if(!a)return 0;return a.filter(function(v){return (best||0)>=v}).length}
 var me=null, sel=POOS[0];
@@ -2063,7 +2063,7 @@ function pooCol(id){for(var i=0;i<POOS.length;i++)if(POOS[i].id===id)return colO
 /* ---------- game 18: Poo Path ---------- */
 function PathGame(){
   var t=0,dist=0,tx=W/2,px=W/2,lives=3,safe=0,stars=0,score=0,sp=[],PY=470,i;
-  function cx(d){return W/2+Math.sin(d*0.011)*70+Math.sin(d*0.0047+1)*55}
+  function cx(d){var k=Math.min(1,Math.max(0,(d-160)/260));return W/2+(Math.sin(d*0.011)*70+Math.sin(d*0.0047+1)*55)*k}
   function hw(d){return Math.max(44,92-d*0.012)}
   for(i=1;i<400;i++)sp.push({d:i*170+Math.random()*80,off:(Math.random()-0.5)*50,got:false});
   return {
@@ -2244,7 +2244,7 @@ function KitchenGame(){
 
 /* ---------- game 22: Pizza Spin ---------- */
 function PizzaGame(){
-  var t=0,rot=0,dir=1,lvl=0,stuck=[],obst=[],need=6,got=0,score=0,lives=3,PX=W/2,PY=235,R=84,fl=[],spd=1.6,shake=0,msg=0;
+  var t=0,rot=0,dir=1,lvl=0,stuck=[],obst=[],need=6,got=0,score=0,lives=3,PX=W/2,PY=235,R=84,fl=[],spd=1.6,shake=0,msg=0,pauseT=0;
   function ad(a,b){var d=Math.abs(a-b)%(Math.PI*2);return d>Math.PI?Math.PI*2-d:d}
   function setup(){
     stuck=[];obst=[];got=0;need=6+lvl;spd=1.6+lvl*0.22;
@@ -2255,9 +2255,10 @@ function PizzaGame(){
   return {
     name:"pizza",
     pointer:noop,
-    tap:function(){fl.push({y:H-90});tone("square",420,520,0.05,0.08)},
+    tap:function(){if(pauseT>0)return;fl.push({y:H-90});tone("square",420,520,0.05,0.08)},
     update:function(dt){
       t+=dt;shake=Math.max(0,shake-dt);msg-=dt;
+      if(pauseT>0){pauseT-=dt;return null}
       if(lvl>0&&Math.floor((t-dt)/4)!==Math.floor(t/4))dir=-dir;
       rot+=dir*spd*(1+0.4*Math.sin(t*0.9))*dt;
       fl.forEach(function(f){f.y-=1200*dt});
@@ -2267,7 +2268,7 @@ function PizzaGame(){
         if(bad){lives--;shake=0.3;bleh()}
         else{stuck.push(a);got++;score++;ding()}
       });
-      if(got>=need&&lives>0){lvl++;setup();tada();msg=1.5}
+      if(got>=need&&lives>0){lvl++;setup();tada();fl=[];pauseT=1.6;msg=1.6}
       if(lives<=0)return {score:score,pts:score};
       return null;
     },
@@ -2281,6 +2282,7 @@ function PizzaGame(){
       drawPoo(c,W/2,H-30,56,pooCol("pepper"),gameAcc("pepper","pizza"),t);
       c.fillStyle="#c9302c";ell(c,PX,H-100,14,14);
       c.restore();
+      c.font="800 22px 'Baloo 2',sans-serif";c.textAlign="center";c.fillStyle="#7a3b12";c.fillText("🍕 "+Math.max(0,need-got)+" more for the next pizza",W/2,PY+R+44);
       hud(c,"Pepperoni: "+score,lives);
       if(msg>0)banner(c,"Next pizza!");else if(t<3)banner(c,"Tap to throw!");
     }
@@ -2855,7 +2857,7 @@ function finish(res){
     careOf(egg.id).next=Date.now()+90000+Math.random()*90000;
     save();
     $("otitle").textContent=res.title;$("oscore").textContent="";
-    $("opts").textContent="Say hi to your new poo!";$("hatch").textContent="";
+    $("opts").textContent="";$("hatch").textContent="";
     $("over").classList.add("on");
     return;
   }

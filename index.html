@@ -336,7 +336,7 @@ function tickCare(){
   return changed;
 }
 /* score needed in each game for each title */
-var TITLES={"catch":[30,70,130],flap:[5,15,40],whack:[8,15,25],run:[10,30,50],hop:[15,40,80],match:[5,10,20],says:[4,8,12],tower:[8,18,30],bounce:[10,25,50],pairs:[8,16,25],slice:[15,40,80],race:[25,60,120],beat:[20,50,100],spot:[20,45,80],bricks:[20,50,90],pipes:[4,9,15],duel:[15,40,80],kitchen:[8,18,30],pizza:[8,15,25],clinic:[20,50,100],grill:[10,25,45],trail:[10,25,45],teeth:[12,30,60],path:[20,50,100],juggle:[15,40,80],blast:[15,40,80]};
+var TITLES={"catch":[30,70,130],flap:[5,15,40],whack:[8,15,25],run:[10,30,50],hop:[15,40,80],match:[5,10,20],says:[4,7,10],tower:[12,30,55],bounce:[25,60,100],pairs:[8,16,25],slice:[15,40,80],race:[50,110,220],beat:[20,50,100],spot:[20,45,80],bricks:[20,50,90],pipes:[4,9,15],duel:[15,40,80],kitchen:[8,18,30],pizza:[8,15,25],clinic:[20,50,100],grill:[10,25,45],trail:[10,25,45],teeth:[12,30,60],path:[20,50,100],juggle:[15,40,80],blast:[15,40,80]};
 var RANKS=["","Little Stinker","Super Pooper","Poo Master"];
 function rankOf(g,best){var a=TITLES[g];if(!a)return 0;return a.filter(function(v){return (best||0)>=v}).length}
 var me=null, sel=POOS[0];

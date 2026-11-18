@@ -150,6 +150,7 @@
     <button class="btn alt" id="vs" style="display:none">👫 Play vs. a friend</button>
     <button class="btn alt" id="disco" style="display:none">🪩 Poo Disco!</button>
     <button class="btn alt small" id="expert" style="display:none">⚡ Expert mode: off</button>
+    <button class="btn alt small" id="boost" style="display:none">🧪 +150 ⭐ (Daddy test)</button>
     <button class="btn alt small" id="renamebtn">✏️ Rename</button>
   </div>
   <div class="foot">
@@ -3135,6 +3136,7 @@ function buildHome(){
   $("vs").style.display=(selOpen&&lv&&eligibleOpps().length)?"":"none";
   $("renamebtn").style.display=selOpen?"":"none";
   $("expert").style.display=me==="Daddy"?"":"none";
+  $("boost").style.display=me==="Daddy"?"":"none";
   $("expert").textContent="⚡ Expert mode: "+(p.expert?"ON (2x speed)":"off");
 }
 
@@ -3401,6 +3403,7 @@ function saveName(){
   if(v&&v!==sel.name)nm[sel.id]=v;else delete nm[sel.id];
   save();$("rename").classList.remove("on");buildHome();
 }
+$("boost").addEventListener("click",function(){var p=prof();p.pts+=150;addMeter(p,150);save();tada();buildHome()});
 $("expert").addEventListener("click",function(){var p=prof();p.expert=!p.expert;save();buildHome()});
 $("rsave").addEventListener("click",saveName);
 $("rinput").addEventListener("keydown",function(e){if(e.key==="Enter")saveName()});

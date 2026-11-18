@@ -336,7 +336,7 @@ function tickCare(){
   return changed;
 }
 /* score needed in each game for each title */
-var TITLES={"catch":[30,70,130],flap:[5,15,40],whack:[8,15,25],run:[10,30,50],hop:[15,40,80],match:[5,10,20],says:[4,7,10],tower:[12,30,55],bounce:[25,60,100],pairs:[8,16,25],slice:[15,40,80],race:[50,110,220],beat:[20,50,100],spot:[20,45,80],bricks:[20,50,90],pipes:[4,9,15],duel:[15,40,80],kitchen:[8,18,30],pizza:[8,15,25],clinic:[20,50,100],grill:[10,25,45],trail:[10,25,45],teeth:[12,30,60],path:[20,50,100],juggle:[15,40,80],blast:[15,40,80]};
+var TITLES={"catch":[30,70,130],flap:[5,15,40],whack:[8,15,25],run:[10,30,50],hop:[15,40,80],match:[5,10,20],says:[4,7,10],tower:[12,30,55],bounce:[25,60,100],pairs:[8,16,25],slice:[15,40,80],race:[50,110,220],beat:[20,50,100],spot:[20,45,80],bricks:[20,50,90],pipes:[4,9,15],duel:[15,40,80],kitchen:[8,18,30],pizza:[8,15,25],clinic:[20,50,100],grill:[10,25,45],trail:[10,25,45],teeth:[12,30,60],path:[20,50,100],juggle:[10,25,50],blast:[15,40,80]};
 var RANKS=["","Little Stinker","Super Pooper","Poo Master"];
 function rankOf(g,best){var a=TITLES[g];if(!a)return 0;return a.filter(function(v){return (best||0)>=v}).length}
 var me=null, sel=POOS[0];
@@ -354,6 +354,8 @@ function applyOrder(n){
   POOS.forEach(function(q,i){q.cost=COSTS[i]});
   save();
 }
+function addMeter(p,n){if(p.hatched<COSTS.length)p.meter=Math.min(COSTS[p.hatched],p.meter+n)}
+function eggReady(p){return p.hatched<COSTS.length&&p.meter>=COSTS[p.hatched]}
 function hasPoo(n,id){var p=store.profiles[n];ensureOrder(p);return p.order.indexOf(id)<p.hatched}
 function unlocked(q){return POOS.indexOf(q)<prof().hatched}
 
@@ -2845,10 +2847,10 @@ function finish(res){
   $("again").style.display=(res.hatchPoo||res.careId||res.golden)?"none":"";
   if(res.golden){
     p.golden=Math.max(0,(p.golden||0)-1);p.goldHatched=(p.goldHatched||0)+1;
-    if(res.prize){p.hats.push(res.prize);p.wear[sel.id]=res.prize}else p.pts+=25;
+    if(res.prize){p.hats.push(res.prize);p.wear[sel.id]=res.prize}else{p.pts+=25;addMeter(p,25)}
     save();
     $("otitle").textContent=res.title;$("oscore").textContent="✨";
-    $("opts").textContent=res.prize?"Wearing it now! Change hats in the Hat Shop.":"";$("hatch").textContent="";
+    $("opts").textContent=res.prize?"Wearing it now! Change hats in the Hat Shop.":"+25 ⭐ party points";$("hatch").textContent=(!res.prize&&eggReady(p))?"🥚 Your egg is ready to hatch!":"";
     $("over").classList.add("on");
     return;
   }
@@ -2889,7 +2891,7 @@ function finish(res){
       if(a===b)msg="It's a tie! "+a+" - "+b;
       else{
         var wi=a>b?0:1,w=versus.players[wi],wp=store.profiles[w];
-        wp.pts+=5;wp.wins=(wp.wins||0)+1;save();
+        wp.pts+=5;addMeter(wp,5);wp.wins=(wp.wins||0)+1;save();
         msg=w+" wins! "+versus.scores[wi]+" - "+versus.scores[1-wi];
       }
       $("otitle").textContent=msg;$("oscore").textContent="🏆";

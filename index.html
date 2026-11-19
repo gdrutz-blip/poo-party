@@ -3072,7 +3072,7 @@ function buildWho(){
     var name=document.createElement("b");name.textContent=n;
     var pts=document.createElement("span");pts.textContent="⭐ "+(store.profiles[n].pts-store.profiles[n].spent)+" party points";
     b.appendChild(cv);b.appendChild(name);b.appendChild(pts);
-    b.addEventListener("click",function(){me=n;applyOrder(n);sel=POOS[0];fart();buildHome();show("home")});
+    b.addEventListener("click",function(){me=n;applyOrder(n);sel=POOS[0];buildHome();show("home")});
     box.appendChild(b);
   });
 }

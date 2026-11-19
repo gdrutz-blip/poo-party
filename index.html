@@ -2109,7 +2109,7 @@ function BricksGame(){
   function say(m){msg=m;msgT=1.5}
   function kill(b){
     b.alive=false;score++;ding();
-    if(Math.random()<0.2){
+    if(Math.random()<Math.max(0.1,0.2-lvl*0.01)){
       var r=Math.random(),kd=r<0.08?{k:"♥",col:"#2f9e44",say:"EXTRA LIFE!"}:KINDS[Math.floor(Math.random()*3)];
       caps.push({x:b.x+BW/2,y:b.y,kd:kd});
     }
@@ -2131,7 +2131,7 @@ function BricksGame(){
       });
     }else if(kd.k==="W")wideT=12;
     else if(kd.k==="L")laserT=10;
-    else lives=Math.min(5,lives+1);
+    else lives=Math.min(3,lives+1);
   }
   return {
     name:"bricks",
@@ -2177,13 +2177,13 @@ function BricksGame(){
             if(!br.alive||b.x<br.x-6||b.x>br.x+BW+6||b.y<br.y-6||b.y>br.y+BH+6)continue;
             kill(br);
             if(b.x<br.x||b.x>br.x+BW)b.vx=-b.vx;else b.vy=-b.vy;
-            var sp2=Math.min(560,Math.hypot(b.vx,b.vy)*1.012),a2=Math.atan2(b.vy,b.vx);b.vx=Math.cos(a2)*sp2;b.vy=Math.sin(a2)*sp2;
+            var sp2=Math.min(780,Math.hypot(b.vx,b.vy)*1.012),a2=Math.atan2(b.vy,b.vx);b.vx=Math.cos(a2)*sp2;b.vy=Math.sin(a2)*sp2;
             break;
           }
         }
         if(b.y>H+10)balls.splice(bn,1);
       }
-      if(bricks.every(function(b){return !b.alive})){lvl++;rows=Math.min(7,3+lvl);spd=Math.min(430,300+lvl*30);fill();stuck=true;balls=[];caps=[];shots=[];tada()}
+      if(bricks.every(function(b){return !b.alive})){lvl++;rows=Math.min(7,3+lvl);spd=Math.min(720,300+lvl*38);fill();stuck=true;balls=[];caps=[];shots=[];tada()}
       else if(!balls.length){lives--;bleh();stuck=true;caps=[];shots=[];if(lives<=0)return {score:score,pts:score}}
       return null;
     },

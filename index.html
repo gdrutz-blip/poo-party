@@ -2571,9 +2571,24 @@ function ClinicGame(){
   var t=0,score=0,lives=3,cur=null,fly=null,spawn=0.3,pops=[],shake=0;
   function limit(){return Math.max(1.3,3.2-score*0.05)}
   function neu(){
-    var sick=Math.random()<0.5,sp=[],i;
-    if(sick)for(i=0;i<5;i++)sp.push([(Math.random()-0.5)*0.6,-0.12-Math.random()*0.38]);
-    cur={sick:sick,age:0,spots:sp,tint:sick&&score<15,star:!sick&&score>=10&&Math.random()<0.5};
+    var sick=Math.random()<0.5,sp=[],mk=[],i;
+    var SICK=["🌡️","🤧","🤒","🤢","🩹","🧊","🦠","😷","🥵"],HEAL=["⭐","🍎","💪","🥦","🏃","🎈","💖","🥛","🥕","🏅"],LOOK=["🍓","🍅","🔴","🌹"];
+    var slots=[[-0.4,-0.5],[0.4,-0.5],[-0.5,0],[0.5,0],[0,-0.7],[-0.5,-0.25],[0.5,-0.25]];
+    for(i=slots.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1)),tmp=slots[i];slots[i]=slots[j];slots[j]=tmp}
+    function pk(a){return a[Math.floor(Math.random()*a.length)]}
+    var spots=false,tint=false;
+    if(sick){
+      if(Math.random()<0.25)spots=true;else mk.push(pk(SICK));
+      if(score>=8&&Math.random()<0.4)mk.push(pk(SICK));
+      if(score<15&&Math.random()<0.4)tint=true;
+      if(score>=15&&Math.random()<0.35){mk=[pk(["💧","🦠","🩹"])];spots=false;tint=false}
+    }else{
+      mk.push(pk(HEAL));
+      if(Math.random()<0.3)mk.push(pk(HEAL));
+      if(score>=10&&Math.random()<0.35)mk.push(pk(LOOK));
+    }
+    if(spots)for(i=0;i<5;i++)sp.push([(Math.random()-0.5)*0.6,-0.12-Math.random()*0.38]);
+    cur={sick:sick,age:0,spots:sp,tint:tint,marks:mk.map(function(e,k){return {e:e,x:slots[k][0],y:slots[k][1]}})};
   }
   function dec(sick,x){
     var correct=(x>=W/2)===sick;
@@ -2586,8 +2601,8 @@ function ClinicGame(){
     c.globalAlpha=al;
     drawPoo(c,x,y,110,p.tint?"#7d8a3a":pooCol("doctor"),"none",t);
     p.spots.forEach(function(d){c.fillStyle="#e03131";ell(c,x+d[0]*110,y+d[1]*110,5,5)});
-    if(p.star){c.fillStyle="#ffd43b";c.font="22px sans-serif";c.textAlign="center";c.fillText("⭐",x-36,y-48)}
-    if(p.sick){c.font="26px sans-serif";c.textAlign="center";c.fillText("🌡️",x+34,y-30)}
+    c.font="30px sans-serif";c.textAlign="center";
+    p.marks.forEach(function(m){c.fillText(m.e,x+m.x*110,y+m.y*110)});
     c.globalAlpha=1;
   }
   return {

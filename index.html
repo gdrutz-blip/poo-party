@@ -2474,8 +2474,7 @@ function PizzaGame(){
     update:function(dt){
       t+=dt;shake=Math.max(0,shake-dt);msg-=dt;
       if(pauseT>0){pauseT-=dt;return null}
-      if(lvl>0&&Math.floor((t-dt)/4)!==Math.floor(t/4))dir=-dir;
-      rot+=dir*spd*(1+0.4*Math.sin(t*0.9))*dt;
+      rot+=spd*dt;
       fl.forEach(function(f){f.y-=1200*dt});
       var land=[];fl=fl.filter(function(f){if(f.y<=PY+R-6){land.push(f);return false}return true});
       land.forEach(function(){

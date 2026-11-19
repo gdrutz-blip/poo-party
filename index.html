@@ -2969,7 +2969,7 @@ function CookieGame(){
         for(var r=0;r<ROWS;r++)for(var c=0;c<COLS;c++)if(off[r][c]>0)off[r][c]=Math.max(0,off[r][c]-620*dt);
         if(!falling()){
           var m2=runs();
-          if(m2.length){marked=m2;delay=0.3;ding()}
+          if(m2.length){marked=m2;state="clear";delay=0.3;ding()}
           else{state="idle";if(!hasMove())fill()}
         }
       }

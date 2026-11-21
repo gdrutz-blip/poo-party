@@ -3540,10 +3540,10 @@ function jingleStop(){
   if(JM){try{JM.gain.cancelScheduledValues(0);JM.gain.value=0}catch(e){}JM=null}
 }
 function jingleStart(){
-  if(JW||JDone||muted||!menuOn())return;
+  if(JW||muted||!menuOn())return;
   if(JA&&!JA.error){
     JW=true;
-    JA.onended=function(){JW=false;JDone=true};
+    JA.loop=true;JA.onended=function(){JW=false};
     var pr;try{JA.currentTime=0;pr=JA.play()}catch(e){}
     if(pr&&pr.then)pr.then(function(){JDone=true},function(){JW=false;JDone=false});
     else JDone=true;
@@ -3564,7 +3564,7 @@ function jingleStart(){
       }
       at+=d;total+=d;
     });
-    JDone=true;JT=setTimeout(function(){JW=false},total*1000);
+    JDone=true;JT=setTimeout(function(){JW=false;jingleStart()},total*1000+500);
   }catch(e){JW=false}
 }
 function show(id){

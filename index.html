@@ -1638,10 +1638,11 @@ function CareGame(){
 }
 
 /* ---------- egg hatching (normal and golden) ---------- */
-var pendingGolden=false;
+var pendingGolden=false,lastGold="";
 function HatchGame(){
   var golden=pendingGolden;pendingGolden=false;
-  var pr=prof(),q=golden?sel:POOS[pr.hatched],prize=null;
+  var pr=prof(),q=POOS[pr.hatched],prize=null,gpoo=null;
+  if(golden){var own=POOS.filter(function(z,i){return i<pr.hatched&&z.id!==lastGold});gpoo=own.length?own[Math.floor(Math.random()*own.length)]:sel;lastGold=gpoo.id;q=gpoo}
   if(golden)for(var i=0;i<RAREHATS.length;i++)if(pr.hats.indexOf(RAREHATS[i].id)<0){prize=RAREHATS[i];break}
   var ecol=golden?"#c98f00":"#b9a3f0",taps=0,NEED=golden?9:7,t=0,wob=0,done=false,doneT=0,conf=[];
   var title=golden?(prize?"You got the "+prize.name+"!":"Bonus ⭐ 25!"):"It's "+q.name+"!";
@@ -1657,7 +1658,7 @@ function HatchGame(){
     update:function(dt){
       t+=dt;wob-=dt;confStep(conf,dt);
       if(done){doneT+=dt;if(Math.floor(doneT/0.8)!==Math.floor((doneT+dt)/0.8))fart();
-        if(doneT>3.8)return {score:null,pts:0,hatchPoo:!golden,golden:golden,prize:prize?prize.id:null,title:title}}
+        if(doneT>3.8)return {score:null,pts:0,hatchPoo:!golden,golden:golden,prize:prize?prize.id:null,gid:gpoo?gpoo.id:null,title:title}}
       return null;
     },
     draw:function(c){
@@ -3928,7 +3929,7 @@ function finish(res){
   $("again").style.display=(res.hatchPoo||res.careId||res.golden)?"none":"";
   if(res.golden){
     p.golden=Math.max(0,(p.golden||0)-1);p.goldHatched=(p.goldHatched||0)+1;
-    if(res.prize){p.hats.push(res.prize);p.wear[sel.id]=res.prize}else{p.pts+=25;addMeter(p,25)}
+    if(res.prize){p.hats.push(res.prize);p.wear[res.gid||sel.id]=res.prize}else{p.pts+=25;addMeter(p,25)}
     save();
     $("otitle").textContent=res.title;$("oscore").textContent="✨";
     $("opts").textContent=res.prize?"Wearing it now! Change hats in the Hat Shop.":"+25 ⭐ party points";$("hatch").textContent=(!res.prize&&eggReady(p))?"🥚 Your egg is ready to hatch!":"";

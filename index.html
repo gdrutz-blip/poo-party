@@ -37,12 +37,15 @@
 
   /* who's playing */
   #who .sub{margin:4px 0 14px;font-size:19px;font-weight:700;font-style:italic;color:var(--purple);text-align:center}
-  .players{display:flex;gap:18px;margin-top:22px;flex-wrap:wrap;justify-content:center}
-  .player{width:140px;padding:14px 10px 16px;border-radius:26px;background:var(--card);
-          box-shadow:0 7px 0 #e3d3ad;display:flex;flex-direction:column;align-items:center;transition:transform .08s}
+  .players{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:8px;width:100%;max-width:440px}
+  .player{width:auto;min-width:0;padding:8px 4px 10px;border-radius:20px;background:var(--card);
+          box-shadow:0 5px 0 #e3d3ad;display:flex;flex-direction:column;align-items:center;transition:transform .08s}
   .player:active{transform:translateY(5px);box-shadow:0 2px 0 #e3d3ad}
-  .player b{font-size:30px;font-weight:800}
-  .player span{font-size:16px;opacity:.75}
+  .player b{font-size:22px;font-weight:800}
+  .player span{font-size:12px;opacity:.75;text-align:center;line-height:1.1}
+  .player canvas{max-width:100%;height:auto!important;max-height:15vh;width:auto!important}
+  .player.guest b{color:#74b816}
+  @media (max-height:700px){#who h1{font-size:30px}#who .sub{margin:2px 0 6px;font-size:15px}#who h2{font-size:20px;margin:2px 0}.player canvas{max-height:11vh}}
   .player.farrah b{color:var(--purple)} .player.mia b{color:var(--teal)} .player.gemma b{color:var(--pink)} .player.mommy b{color:#f08c00} .player.daddy b{color:#339af0}
 
   /* home */
@@ -218,8 +221,8 @@ var $=function(id){return document.getElementById(id)};
 
 /* ---------- saved progress (one slot per kid, on this device) ---------- */
 var KEY="pooParty.v1";
-var NAMES=["Farrah","Mia","Gemma","Mommy","Daddy"],OLDNAME={Farrah:"Farah",Mommy:"Mummy"};
-var PCOL={Farrah:"#8b5cf6",Mia:"#19b5a5",Gemma:"#ff5fa2",Mommy:"#f08c00",Daddy:"#339af0"};
+var NAMES=["Farrah","Mia","Gemma","Mommy","Daddy","Guest"],OLDNAME={Farrah:"Farah",Mommy:"Mummy"};
+var PCOL={Farrah:"#8b5cf6",Mia:"#19b5a5",Gemma:"#ff5fa2",Mommy:"#f08c00",Daddy:"#339af0",Guest:"#74b816"};
 var store={profiles:{}};
 var OLD_NEED=[0,25,60,110];
 NAMES.forEach(function(n){store.profiles[n]={pts:0,best:{},hatched:1,meter:0,order:null,expert:false,gear:{},room:"",care:{},spent:0,hats:[],wear:{},names:{},golden:0,goldHatched:0,cared:0,wins:0,outfit:{hat:0,eyes:0,extra:0,color:0}}});
@@ -435,7 +438,7 @@ function tickCare(){
 var TITLES={"catch":[30,70,130],flap:[5,15,40],whack:[8,15,25],run:[12,32,55],hop:[20,45,70],match:[5,10,20],says:[4,7,10],tower:[12,30,55],bounce:[25,60,100],pairs:[8,16,25],slice:[15,40,80],race:[70,150,280],beat:[20,50,100],spot:[20,45,80],bricks:[40,90,170],pipes:[4,9,15],duel:[15,35,60],kitchen:[18,40,70],pizza:[8,15,25],clinic:[20,50,100],grill:[14,32,55],trail:[10,25,45],teeth:[12,30,60],pinball:[60,130,250],drop:[12,30,60],cookies:[60,150,300],shoot:[50,100,150],meteor:[40,90,160],path:[20,50,100],juggle:[10,25,50],blast:[15,40,80]};
 var RANKS=["","Little Stinker","Super Pooper","Poo Master"];
 /* golden eggs: grown-ups earn one at the top title; the kids earn one at the middle title */
-function goldRank(n){return (n==="Farrah"||n==="Mia"||n==="Gemma")?2:3}
+function goldRank(n){return (n==="Farrah"||n==="Mia"||n==="Gemma"||n==="Guest")?2:3}
 function migrateGold(){
   NAMES.forEach(function(n){
     var p=store.profiles[n];if(!p||p.goldMig||goldRank(n)>=3){if(p)p.goldMig=true;return}
@@ -3585,7 +3588,7 @@ function buildWho(){
     var cv=document.createElement("canvas");cv.width=200;cv.height=220;cv.style.width="100px";cv.style.height="110px";
     drawPoo(cv.getContext("2d"),100,205,150,PCOL[n],"none",0);
     var name=document.createElement("b");name.textContent=n;
-    var pts=document.createElement("span");pts.textContent="⭐ "+(store.profiles[n].pts-store.profiles[n].spent)+" party points";
+    var pts=document.createElement("span");pts.textContent="⭐ "+(store.profiles[n].pts-store.profiles[n].spent);
     b.appendChild(cv);b.appendChild(name);b.appendChild(pts);
     b.addEventListener("click",function(){me=n;applyOrder(n);sel=POOS[0];buildHome();show("home")});
     box.appendChild(b);

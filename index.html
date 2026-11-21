@@ -289,8 +289,8 @@ var POOS=[
    blurb:"Sick poos go to bed (tap right). Healthy poos go home (tap left). Be quick!"},
   {id:"burger",name:"Big Poo-ger",color:"#a56a35",acc:"burger",cost:470,game:"grill",gname:"Poo Grill",
    blurb:"Tap each patty to flip it when the ring is in the green. Don't let them burn!"},
-  {id:"dino",name:"Poo-saurus Rex",color:"#7f8f3c",acc:"dino",cost:490,game:"trail",gname:"Dino Trail",
-   blurb:"Swipe to steer the dino. Gobble the eggs, but don't crash into the wall or your own tail!"},
+  {id:"dino",name:"Poo-saurus Rex",color:"#7f8f3c",acc:"dino",cost:490,game:"meteor",gname:"Meteor Stomp",
+   blurb:"Meteors are falling! Tap them to smash them before they hit the ground. Big ones take two hits!"},
   {id:"dentist",name:"Dr. Flossy",color:"#9a6535",acc:"dentist brush",cost:510,game:"teeth",gname:"Poo Dentist",
    blurb:"Scrub the poo off the teeth with your finger before it makes a cavity!"},
   {id:"gamer",name:"Gamer Poo",color:"#8d5b2c",acc:"headset controller",cost:530,game:"pinball",gname:"Pooball",
@@ -432,7 +432,7 @@ function tickCare(){
   return changed;
 }
 /* score needed in each game for each title */
-var TITLES={"catch":[30,70,130],flap:[5,15,40],whack:[8,15,25],run:[10,30,50],hop:[15,40,80],match:[5,10,20],says:[4,7,10],tower:[12,30,55],bounce:[25,60,100],pairs:[8,16,25],slice:[15,40,80],race:[50,110,220],beat:[20,50,100],spot:[20,45,80],bricks:[40,90,170],pipes:[4,9,15],duel:[12,30,50],kitchen:[8,18,30],pizza:[8,15,25],clinic:[20,50,100],grill:[10,25,45],trail:[10,25,45],teeth:[12,30,60],pinball:[60,130,250],drop:[12,30,60],cookies:[60,150,300],shoot:[50,100,150],path:[20,50,100],juggle:[10,25,50],blast:[15,40,80]};
+var TITLES={"catch":[30,70,130],flap:[5,15,40],whack:[8,15,25],run:[10,30,50],hop:[20,45,70],match:[5,10,20],says:[4,7,10],tower:[12,30,55],bounce:[25,60,100],pairs:[8,16,25],slice:[15,40,80],race:[50,110,220],beat:[20,50,100],spot:[20,45,80],bricks:[40,90,170],pipes:[4,9,15],duel:[12,30,50],kitchen:[8,18,30],pizza:[8,15,25],clinic:[20,50,100],grill:[10,25,45],trail:[10,25,45],teeth:[12,30,60],pinball:[60,130,250],drop:[12,30,60],cookies:[60,150,300],shoot:[50,100,150],meteor:[40,90,160],path:[20,50,100],juggle:[10,25,50],blast:[15,40,80]};
 var RANKS=["","Little Stinker","Super Pooper","Poo Master"];
 function rankOf(g,best){var a=TITLES[g];if(!a)return 0;return a.filter(function(v){return (best||0)>=v}).length}
 var me=null, sel=POOS[0];
@@ -1001,11 +1001,13 @@ function CatchGame(){
         if(ty==="broc"&&t>25&&Math.random()<0.3)zz=true;
         var bx=70+Math.random()*(W-140);
         items.push({x:bx,bx:bx,y:-30,type:ty,zz:zz,age:0,amp:40+Math.random()*30,fq:2.5+Math.random()*1.5,ph:Math.random()*6.28,
-                    vy:105+Math.min(t*3,300)+Math.random()*40});
+                    vy:(105+Math.min(t*3,300))*(0.6+Math.random()*1.1)+(Math.random()<0.15?160:0),
+                    bn:(t>8&&ty!=="gold"&&!zz&&Math.random()<0.25)?(Math.random()<0.5?-1:1)*(70+Math.random()*90):0});
         spawn=Math.max(0.32,1-t*0.012)*(storm?Math.max(0.3,0.7-sn*0.08):1);
       }
       for(var i=items.length-1;i>=0;i--){
         var it=items[i];it.y+=it.vy*dt;
+        if(it.bn){it.x+=it.bn*dt;if(it.x<28){it.x=28;it.bn=Math.abs(it.bn)}if(it.x>W-28){it.x=W-28;it.bn=-Math.abs(it.bn)}}
         if(it.zz){it.age+=dt;it.x=Math.max(30,Math.min(W-30,it.bx+it.amp*Math.sin(it.age*it.fq+it.ph)))}
         if(it.y>TY-8&&it.y<TY+34&&Math.abs(it.x-tx)<50){
           if(it.type==="poo"){score+=1;fart();pops.push({x:tx,y:TY-20,txt:"+1",a:1})}
@@ -2285,15 +2287,20 @@ function DuelGame(){
   var t=0,en=[],spawn=1,score=0,lives=3,slash=0,sdir=1,pops=[],GY=470,CX=W/2;
   function spd(){return 110+Math.min(t*3.2,170)}
   function add(){
-    var d=Math.random()<0.5?-1:1;
-    en.push({d:d,x:CX+d*(W/2+30),duck:Math.random()<Math.min(0.28,0.08+t*0.003),dead:false,fall:0});
+    var d=Math.random()<0.5?-1:1,sx0=CX+d*(W/2+30);
+    if(en.some(function(e){return !e.dead&&e.d===d&&Math.abs(e.x-sx0)<80}))d=-d;
+    sx0=CX+d*(W/2+30);
+    if(en.some(function(e){return !e.dead&&e.d===d&&Math.abs(e.x-sx0)<80}))return;
+    en.push({d:d,x:sx0,duck:Math.random()<Math.min(0.28,0.08+t*0.003),dead:false,fall:0});
   }
   return {
     name:"duel",
     pointer:noop,
     tap:function(x){
       var d=x<CX?-1:1;sdir=d;slash=0.18;
-      var best=null;en.forEach(function(e){if(!e.dead&&e.d===d&&Math.abs(e.x-CX)<92&&(!best||Math.abs(e.x-CX)<Math.abs(best.x-CX)))best=e});
+      var best=null;
+      en.forEach(function(e){if(!e.dead&&e.d===d&&!e.duck&&Math.abs(e.x-CX)<92&&(!best||Math.abs(e.x-CX)<Math.abs(best.x-CX)))best=e});
+      if(!best)en.forEach(function(e){if(!e.dead&&e.d===d&&e.duck&&Math.abs(e.x-CX)<92&&(!best||Math.abs(e.x-CX)<Math.abs(best.x-CX)))best=e});
       if(best){
         best.dead=true;
         if(best.duck){lives--;bleh();pops.push({x:best.x,y:GY-60,txt:"Oops, a duck!",a:1})}
@@ -3267,6 +3274,87 @@ function ShootGame(){
   };
 }
 
+/* ---------- Meteor Stomp (Poo-saurus Rex) ---------- */
+function MeteorGame(){
+  var t=0,score=0,lives=3,spawn=0.8,ms=[],parts=[],pops=[],shake=0,freeze=0,swing=0,sx=W/2,sy=300,GY=H-80,msg="",msgT=0;
+  function ramp(){return 1+Math.min(1.1,t/50)}
+  function mk(){
+    var r=Math.random(),type="small",k=t/50;
+    if(r<0.1)type="gold";else if(r<0.17&&t>8)type="ice";else if(r<0.4+Math.min(0.2,k*0.2))type="big";
+    var sz=type==="big"?34:type==="small"?20:22,base=type==="big"?55:type==="small"?95:type==="gold"?130:80;
+    ms.push({x:30+Math.random()*(W-60),y:-40,vx:(Math.random()-0.5)*40,vy:base*ramp()*(0.8+Math.random()*0.5),type:type,sz:sz,hp:type==="big"?2:1,rot:Math.random()*6.28,hit:0});
+  }
+  function burst(x,y,col,n){for(var i=0;i<n;i++){var a=Math.random()*6.283,v=70+Math.random()*160;parts.push({x:x,y:y,vx:Math.cos(a)*v,vy:Math.sin(a)*v-40,a:1,col:col,r:2+Math.random()*4})}}
+  function pop(x,y,txt,col){pops.push({x:x,y:y,a:1,txt:txt,col:col})}
+  function hitM(m){
+    m.hp--;m.hit=0.15;
+    if(m.hp>0){burst(m.x,m.y,"#ffb066",6);tone("square",300,200,0.05,0.08);return}
+    m.dead=true;
+    var p=m.type==="big"?2:m.type==="gold"?5:1;
+    if(m.type==="ice"){freeze=3.5;msg="FREEZE!";msgT=1.4;tada();pop(m.x,m.y,"❄","#9bd8ff");burst(m.x,m.y,"#9bd8ff",14);return}
+    score+=p;ding();if(m.type==="gold")tada();pop(m.x,m.y,"+"+p,m.type==="gold"?"#ffd43b":"#fff");burst(m.x,m.y,m.type==="gold"?"#ffd43b":"#ff8a3d",12);
+  }
+  return {
+    name:"meteor",
+    pointer:function(x,y){sx=x;sy=y},
+    tap:function(x,y){
+      sx=x;sy=y;swing=0.2;
+      var best=null,bd=1e9;
+      ms.forEach(function(m){if(m.dead)return;var d=Math.hypot(m.x-x,m.y-y);if(d<m.sz+16&&d<bd){bd=d;best=m}});
+      if(best)hitM(best);else tone("sine",220,150,0.08,0.05);
+    },
+    update:function(dt){
+      t+=dt;msgT-=dt;shake=Math.max(0,shake-dt);swing=Math.max(0,swing-dt);
+      freeze=Math.max(0,freeze-dt);
+      var fz=freeze>0?0.12:1;
+      spawn-=dt*(freeze>0?0.3:1);
+      if(spawn<=0){mk();if(t>20&&Math.random()<0.3)mk();spawn=Math.max(0.35,1.1-t*0.013)}
+      for(var i=ms.length-1;i>=0;i--){
+        var m=ms[i];
+        if(m.dead){ms.splice(i,1);continue}
+        m.hit=Math.max(0,m.hit-dt);m.x+=m.vx*dt*fz;m.y+=m.vy*dt*fz;m.rot+=dt*2*fz;
+        if(m.x<20||m.x>W-20)m.vx=-m.vx;
+        if(m.y>GY){
+          ms.splice(i,1);
+          if(m.type==="ice"||m.type==="gold"){burst(m.x,GY,"#ccc",6);continue}
+          lives--;shake=0.35;bleh();burst(m.x,GY,"#ff6a3d",16);pop(m.x,GY-20,"Boom!","#ff5555");
+        }
+      }
+      parts.forEach(function(q){q.x+=q.vx*dt;q.y+=q.vy*dt;q.vy+=300*dt;q.a-=1.8*dt});parts=parts.filter(function(q){return q.a>0});
+      pops.forEach(function(p){p.a-=1.5*dt;p.y-=40*dt});pops=pops.filter(function(p){return p.a>0});
+      if(lives<=0)return {score:score,pts:score};
+      return null;
+    },
+    draw:function(c){
+      c.save();if(shake>0)c.translate((Math.random()-0.5)*10,(Math.random()-0.5)*10);
+      var g=c.createLinearGradient(0,0,0,H);g.addColorStop(0,"#2b1b4a");g.addColorStop(1,"#d9722f");c.fillStyle=g;c.fillRect(-20,-20,W+40,H+40);
+      c.fillStyle="#fff";[[40,120],[120,80],[200,140],[300,100],[260,200],[80,220],[330,260]].forEach(function(s){ell(c,s[0],s[1],1.5,1.5)});
+      c.fillStyle="#5a3a22";c.fillRect(0,GY,W,H-GY);c.fillStyle="#7a5232";c.fillRect(0,GY,W,8);
+      ms.forEach(function(m){
+        c.save();c.translate(m.x,m.y);
+        var col=m.type==="gold"?"#ffd43b":m.type==="ice"?"#9bd8ff":m.hit>0?"#fff":"#6a5a52";
+        c.fillStyle=m.type==="gold"?"rgba(255,230,90,0.4)":"rgba(255,140,40,0.55)";ell(c,0,-m.sz*0.9,m.sz*0.6,m.sz*1.1);
+        c.rotate(m.rot);c.fillStyle=col;ell(c,0,0,m.sz,m.sz);
+        c.fillStyle="rgba(0,0,0,0.25)";ell(c,m.sz*0.3,m.sz*0.2,m.sz*0.3,m.sz*0.25);ell(c,-m.sz*0.35,-m.sz*0.25,m.sz*0.2,m.sz*0.2);
+        if(m.type==="big"&&m.hp===1){c.strokeStyle="#222";c.lineWidth=2;c.beginPath();c.moveTo(-m.sz*0.5,-m.sz*0.3);c.lineTo(0,m.sz*0.1);c.lineTo(m.sz*0.4,-m.sz*0.2);c.stroke()}
+        c.restore();
+      });
+      parts.forEach(function(q){c.globalAlpha=Math.max(0,q.a);c.fillStyle=q.col;ell(c,q.x,q.y,q.r,q.r)});c.globalAlpha=1;
+      // Rex swings its tail toward the tap
+      var rx=W/2,ry=GY-4;
+      if(swing>0){c.strokeStyle="#c8d46a";c.lineWidth=16;c.lineCap="round";c.beginPath();c.moveTo(rx,ry-20);c.quadraticCurveTo((rx+sx)/2,Math.min(ry,sy)-30,sx,sy);c.stroke();c.lineCap="butt";c.fillStyle="#fff";ell(c,sx,sy,12,12)}
+      drawPoo(c,rx,ry,84,pooCol("dino"),gameAcc("dino","dino"),t);
+      c.textAlign="center";c.font="800 24px 'Baloo 2',sans-serif";
+      pops.forEach(function(p){c.globalAlpha=Math.max(0,p.a);c.fillStyle=p.col;c.fillText(p.txt,p.x,p.y)});c.globalAlpha=1;
+      c.restore();
+      if(freeze>0){c.fillStyle="rgba(155,216,255,0.15)";c.fillRect(0,0,W,H)}
+      if(msgT>0){c.globalAlpha=Math.min(1,msgT);c.font="800 28px 'Baloo 2',sans-serif";c.textAlign="center";c.fillStyle="#fff";c.strokeStyle="#4a7bd1";c.lineWidth=5;c.strokeText(msg,W/2,130);c.fillText(msg,W/2,130);c.globalAlpha=1}
+      hud(c,"Smashed: "+score,lives);
+      if(t<3)banner(c,"Tap the meteors! Big ones take 2 hits!");
+    }
+  };
+}
+
 /* ---------- finale: Poo Disco ---------- */
 function DiscoGame(){
   var t=0,beat=-1,conf=[],NOTES=[262,330,392,330,294,349,440,349];
@@ -3586,7 +3674,7 @@ function fit(){
 window.addEventListener("resize",fit);
 function px(e){var r=cv.getBoundingClientRect();return (e.clientX-r.left)*W/r.width}
 function py(e){var r=cv.getBoundingClientRect();return (e.clientY-r.top)*H/r.height}
-var GAMES={catch:CatchGame,flap:FlapGame,whack:WhackGame,run:RunGame,dress:DressGame,disco:DiscoGame,hop:HopGame,match:MatchGame,care:CareGame,hatch:HatchGame,says:SaysGame,tower:TowerGame,bounce:BounceGame,pairs:PairsGame,slice:SliceGame,race:RaceGame,beat:function(){return BeatGame("pop","beat",3,230,300,"swoop shades")},spot:SpotGame,bricks:BricksGame,pipes:PipesGame,duel:DuelGame,path:PathGame,juggle:JuggleGame,blast:BlastGame,kitchen:KitchenGame,pizza:PizzaGame,clinic:ClinicGame,grill:GrillGame,trail:TrailGame,teeth:TeethGame,pinball:PinballGame,drop:DropGame,cookies:CookieGame,shoot:ShootGame};
+var GAMES={catch:CatchGame,flap:FlapGame,whack:WhackGame,run:RunGame,dress:DressGame,disco:DiscoGame,hop:HopGame,match:MatchGame,care:CareGame,hatch:HatchGame,says:SaysGame,tower:TowerGame,bounce:BounceGame,pairs:PairsGame,slice:SliceGame,race:RaceGame,beat:function(){return BeatGame("pop","beat",3,230,300,"swoop shades")},spot:SpotGame,bricks:BricksGame,pipes:PipesGame,duel:DuelGame,path:PathGame,juggle:JuggleGame,blast:BlastGame,kitchen:KitchenGame,pizza:PizzaGame,clinic:ClinicGame,grill:GrillGame,trail:TrailGame,teeth:TeethGame,pinball:PinballGame,drop:DropGame,cookies:CookieGame,shoot:ShootGame,meteor:MeteorGame};
 cv.addEventListener("pointerdown",function(e){e.preventDefault();audio();if(game&&running)game.tap(px(e),py(e))});
 cv.addEventListener("pointerup",function(e){if(game&&running&&game.up)game.up(px(e),py(e))});
 cv.addEventListener("pointermove",function(e){if(game&&running)game.pointer(px(e),py(e))});

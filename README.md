@@ -33,7 +33,7 @@ A silly collect-the-poos game for Farrah, Mia and Gemma. Each poo has its own mi
 | Poo-peroni | Pizza Spin (throw pepperoni at a spinning pizza) | 430 |
 | Doctor Plopsy | Poo Clinic (sort sick and healthy patients) | 450 |
 | Big Poo-ger | Poo Grill (flip the burgers on time) | 470 |
-| Poo-saurus Rex | Dino Trail (snake) | 490 |
+| Poo-saurus Rex | Meteor Stomp (smash falling meteors) | 490 |
 | Dr. Flossy | Poo Dentist (scrub the teeth) | 510 |
 | Gamer Poo | Pooball (pinball) | 530 |
 | Pinky Plop | Poo Drop (fall through the gaps) | 550 |

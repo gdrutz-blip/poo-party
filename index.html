@@ -434,6 +434,17 @@ function tickCare(){
 /* score needed in each game for each title */
 var TITLES={"catch":[30,70,130],flap:[5,15,40],whack:[8,15,25],run:[12,32,55],hop:[20,45,70],match:[5,10,20],says:[4,7,10],tower:[12,30,55],bounce:[25,60,100],pairs:[8,16,25],slice:[15,40,80],race:[70,150,280],beat:[20,50,100],spot:[20,45,80],bricks:[40,90,170],pipes:[4,9,15],duel:[15,35,60],kitchen:[18,40,70],pizza:[8,15,25],clinic:[20,50,100],grill:[14,32,55],trail:[10,25,45],teeth:[12,30,60],pinball:[60,130,250],drop:[12,30,60],cookies:[60,150,300],shoot:[50,100,150],meteor:[40,90,160],path:[20,50,100],juggle:[10,25,50],blast:[15,40,80]};
 var RANKS=["","Little Stinker","Super Pooper","Poo Master"];
+/* golden eggs: grown-ups earn one at the top title; the kids earn one at the middle title */
+function goldRank(n){return (n==="Farrah"||n==="Mia"||n==="Gemma")?2:3}
+function migrateGold(){
+  NAMES.forEach(function(n){
+    var p=store.profiles[n];if(!p||p.goldMig||goldRank(n)>=3){if(p)p.goldMig=true;return}
+    var cnt=0;Object.keys(p.best||{}).forEach(function(g){if(rankOf(g,p.best[g])>=2)cnt++});
+    p.golden=(p.golden||0)+Math.max(0,cnt-(p.golden||0)-(p.goldHatched||0));
+    p.goldMig=true;
+  });
+  save();
+}
 function rankOf(g,best){var a=TITLES[g];if(!a)return 0;return a.filter(function(v){return (best||0)>=v}).length}
 var me=null, sel=POOS[0];
 function prof(){return store.profiles[me]}
@@ -3855,7 +3866,8 @@ function finish(res){
   if(newBest)p.best[game.name]=res.score;
   var rank1=rankOf(game.name,p.best[game.name]);
   var goldMsg=false;
-  if(rank1>=3&&rank0<3){p.golden=(p.golden||0)+1;goldMsg=true}
+  var gr=goldRank(me);
+  if(rank1>=gr&&rank0<gr){p.golden=(p.golden||0)+1;goldMsg=true}
   /* party points fill the egg; a full egg waits to be tapped, so only one poo hatches at a time */
   var ready=false,next=POOS[p.hatched];
   if(next){var before=p.meter;p.meter=Math.min(next.cost,p.meter+res.pts);if(before<next.cost&&p.meter>=next.cost)ready=true}
@@ -3961,6 +3973,7 @@ document.addEventListener("pointerdown",function(e){
   var b=e.target.closest&&e.target.closest("button,.btn");
   if(b&&!(typeof JW!=="undefined"&&JW)&&Math.random()<0.35)fart();
 });
+migrateGold();
 buildWho();
 })();
 </script>

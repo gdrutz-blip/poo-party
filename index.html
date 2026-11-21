@@ -3795,6 +3795,87 @@ function endVersus(){
   buildHome();show("home");
 }
 
+/* ---------- music: a little chiptune loop for every game ---------- */
+var MTAB={
+  catch:{r:60,s:"major",b:112,w:"square"},flap:{r:55,s:"pent",b:128,w:"triangle"},whack:{r:62,s:"dorian",b:140,w:"square"},
+  run:{r:52,s:"minor",b:138,w:"sawtooth"},hop:{r:53,s:"major",b:124,w:"square"},match:{r:57,s:"major",b:108,w:"triangle"},
+  dress:{r:60,s:"major",b:96,w:"triangle"},tower:{r:58,s:"major",b:100,w:"triangle"},bounce:{r:62,s:"major",b:132,w:"square"},
+  pairs:{r:54,s:"minor",b:96,w:"triangle"},slice:{r:57,s:"minor",b:150,w:"sawtooth"},race:{r:52,s:"minor",b:160,w:"square"},
+  spot:{r:60,s:"minor",b:118,w:"square"},bricks:{r:55,s:"minor",b:126,w:"square"},pipes:{r:60,s:"major",b:120,w:"square"},
+  duel:{r:62,s:"minor",b:116,w:"sawtooth"},path:{r:63,s:"pent",b:104,w:"triangle"},juggle:{r:55,s:"major",b:132,w:"square"},
+  blast:{r:57,s:"dorian",b:144,w:"sawtooth"},kitchen:{r:53,s:"mixo",b:112,w:"triangle"},pizza:{r:60,s:"mixo",b:138,w:"square"},
+  clinic:{r:58,s:"major",b:100,w:"triangle"},grill:{r:52,s:"mixo",b:120,w:"sawtooth"},meteor:{r:59,s:"minor",b:128,w:"sawtooth"},
+  teeth:{r:57,s:"major",b:118,w:"triangle"},pinball:{r:60,s:"minor",b:150,w:"square"},drop:{r:53,s:"lydian",b:120,w:"triangle"},
+  cookies:{r:55,s:"major",b:110,w:"triangle"},shoot:{r:62,s:"phryg",b:134,w:"sawtooth"}
+};
+var MSCALES={major:[0,2,4,5,7,9,11],minor:[0,2,3,5,7,8,10],dorian:[0,2,3,5,7,9,10],mixo:[0,2,4,5,7,9,10],lydian:[0,2,4,6,7,9,11],phryg:[0,1,3,5,7,8,10],pent:[0,2,4,7,9]};
+var MPROGS=[[0,4,5,3],[0,5,3,4],[0,3,4,4],[0,2,5,4],[5,3,0,4]];
+var MUS=null,mNoise=null;
+function mrand(seed){var a=seed>>>0;return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function mhash(s){var h=2166136261;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,16777619)}return h>>>0}
+function mkSong(name){
+  var cfg=MTAB[name]||{r:60,s:"major",b:120,w:"square"},rnd=mrand(mhash(name)),sc=MSCALES[cfg.s];
+  function deg(d){var o=Math.floor(d/sc.length),i=((d%sc.length)+sc.length)%sc.length;return cfg.r+sc[i]+12*o}
+  var prog=MPROGS[Math.floor(rnd()*MPROGS.length)].map(function(d){return d%sc.length});
+  function bar(c,last){
+    var tones=[c,c+2,c+4],cur=c+7,out=[];
+    for(var i=0;i<8;i++){
+      var r=rnd();
+      if(i%2===0||i===0){
+        var best=null;[-7,0,7].forEach(function(o){tones.forEach(function(t){var d=t+o+7;if(best==null||Math.abs(d-cur)<Math.abs(best-cur))best=d})});
+        if(i===0&&rnd()<0.5)best=tones[0]+7;cur=best;out.push(cur);
+      }else if(r<0.55){cur+=rnd()<0.5?1:-1;out.push(cur)}
+      else if(r<0.75)out.push(null);
+      else out.push(cur);
+    }
+    if(last)out[7]=null;
+    return out;
+  }
+  var A=bar(prog[0],false),B=bar(prog[1],false),D=bar(prog[3],true);
+  return {cfg:cfg,deg:deg,prog:prog,mel:[A,B,A,D]};
+}
+function mtof(m){return 440*Math.pow(2,(m-69)/12)}
+function mNote(ac,t,m,dur,type,vol){
+  var o=ac.createOscillator(),g=ac.createGain();
+  o.type=type;o.frequency.value=mtof(m);
+  g.gain.setValueAtTime(0.0001,t);g.gain.linearRampToValueAtTime(vol,t+0.01);g.gain.exponentialRampToValueAtTime(0.0001,t+dur*0.92);
+  o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+dur);
+}
+function mKick(ac,t){
+  var o=ac.createOscillator(),g=ac.createGain();o.type="sine";o.frequency.setValueAtTime(130,t);o.frequency.exponentialRampToValueAtTime(40,t+0.12);
+  g.gain.setValueAtTime(0.16,t);g.gain.exponentialRampToValueAtTime(0.0001,t+0.14);o.connect(g);g.connect(ac.destination);o.start(t);o.stop(t+0.15);
+}
+function mHat(ac,t){
+  if(!mNoise){mNoise=ac.createBuffer(1,ac.sampleRate*0.1,ac.sampleRate);var d=mNoise.getChannelData(0);for(var i=0;i<d.length;i++)d[i]=Math.random()*2-1}
+  var s=ac.createBufferSource(),f=ac.createBiquadFilter(),g=ac.createGain();s.buffer=mNoise;f.type="highpass";f.frequency.value=7000;
+  g.gain.setValueAtTime(0.05,t);g.gain.exponentialRampToValueAtTime(0.0001,t+0.04);s.connect(f);f.connect(g);g.connect(ac.destination);s.start(t);s.stop(t+0.06);
+}
+var NOMUSIC={says:1,hatch:1,beat:1,disco:1,care:1};
+function musicStart(name){
+  musicStop();
+  if(NOMUSIC[name])return;
+  var song=mkSong(name);
+  MUS={song:song,step:0,next:0,iv:setInterval(musicTick,30),rate:1};
+}
+function musicStop(){if(MUS){clearInterval(MUS.iv);MUS=null}}
+function musicTick(){
+  if(!MUS)return;
+  if(muted||(typeof JW!=="undefined"&&JW))return;
+  var ac2=audio();if(!ac2)return;
+  var sp=MUS.song,e8=30/(sp.cfg.b*(typeof gspeed!=="undefined"&&gspeed>1?1.25:1));
+  if(!MUS.next||MUS.next<ac2.currentTime)MUS.next=ac2.currentTime+0.06;
+  while(MUS.next<ac2.currentTime+0.25){
+    var st=MUS.step,bar=(st>>3)&3,i=st&7,t=MUS.next,c=sp.prog[bar];
+    var m=sp.mel[bar][i];
+    if(m!=null)mNote(ac2,t,sp.deg(m),e8*1.6,sp.cfg.w,sp.cfg.w==="sawtooth"?0.035:0.05);
+    var fast=sp.cfg.b>=130;
+    if(i===0||i===4||(fast&&i%2===0)){var bn=(i===4)?sp.deg(c+4)-24:sp.deg(c)-24;mNote(ac2,t,bn,e8*(fast?1.2:2),"triangle",0.1)}
+    if(i===0||i===4)mKick(ac2,t);
+    if(i%2===1)mHat(ac2,t);
+    MUS.step++;MUS.next+=e8;
+  }
+}
+
 /* ---------- game runner ---------- */
 var cv=$("cv"),ctx=cv.getContext("2d"),game=null,raf=0,last=0,running=false;
 function fit(){
@@ -3824,6 +3905,7 @@ function start(kind){
   gspeed=(me==="Daddy"&&prof().expert&&!versus&&TITLES[game.name])?2:1;
   $("over").classList.remove("on");show("game");fit();
   running=true;last=0;cancelAnimationFrame(raf);raf=requestAnimationFrame(loop);
+  musicStart(game.name);
 }
 function loop(ts){
   if(!running)return;
@@ -3835,7 +3917,7 @@ function loop(ts){
   if(res){finish(res);return}
   raf=requestAnimationFrame(loop);
 }
-function stop(){running=false;cancelAnimationFrame(raf)}
+function stop(){running=false;cancelAnimationFrame(raf);musicStop()}
 function finish(res){
   stop();setTimeout(fart,200);
   var p=prof();
